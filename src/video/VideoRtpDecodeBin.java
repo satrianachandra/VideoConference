@@ -23,18 +23,27 @@ class VideoRtpDecodeBin extends Bin{
     private Pad sink;
     private Pad src;
     
+    private Element videoscale;
+    private Element ffmpegcs;
+    
     public VideoRtpDecodeBin(boolean autoDisconnect) {
         super();
-        // this is a speex encoded payload
+        
+        
+        // this is a vp8 encoded payload
         rtpDepay = ElementFactory.make("rtpvp8depay", null);
-        // use speex codec
+        // use vp8 codec
         decoder = ElementFactory.make("vp8dec", null);
-        convert = ElementFactory.make("videoconvert", null);
-        this.addMany(rtpDepay, decoder, convert);
-        Bin.linkMany(rtpDepay, decoder, convert);
+        /////convert = ElementFactory.make("videoconvert", null);
+        
+        videoscale= ElementFactory.make("videoscale", null);
+        ffmpegcs = ElementFactory.make("ffmpegcolorspace", null);
+        
+        this.addMany(rtpDepay, decoder, ffmpegcs,videoscale);
+        Bin.linkMany(rtpDepay, decoder, ffmpegcs,videoscale);
         // create Bin's pads
         sink = new GhostPad("sink", rtpDepay.getStaticPad("sink"));
-        src = new GhostPad("src", convert.getStaticPad("src"));
+        src = new GhostPad("src", videoscale.getStaticPad("src"));
         this.addPad(sink);
         this.addPad(src);
         if (autoDisconnect) {

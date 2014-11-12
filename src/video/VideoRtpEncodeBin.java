@@ -21,12 +21,21 @@ public class VideoRtpEncodeBin extends Bin{
     // queue to create a new thread for this branch
     private Element queue;
     // could be useful
-    private Element resample;
+    //private Element resample;
+    
+    
+    private Element videoscale;
+    private Element ffmpegcs;
+    
     private Element encoder;
     private Element rtpPay;
     // helps to set the good stream parameters in this bin
     private Element capsFilter;
 
+    //private final String VCAPS = "video/x-raw,width=352,height=288,framerate=15/1";
+    private final String VCAPS = "video/x-raw-yuv, width=320, height=240";
+    
+    
     private Pad sink;
     private Pad src;
 
@@ -37,18 +46,24 @@ public class VideoRtpEncodeBin extends Bin{
             super();
 
             queue = ElementFactory.make("queue", null);
-            resample = ElementFactory.make("audioconvert", null);
+            
+            videoscale= ElementFactory.make("videoscale", null);
+            ffmpegcs = ElementFactory.make("ffmpegcolorspace", null);
+            //resample = ElementFactory.make("audioconvert", null);
 
             capsFilter = ElementFactory.make("capsfilter", null);
-            capsFilter.set("caps", Caps.fromString("video/x-vp8"));
+            capsFilter.set("caps", Caps.fromString(VCAPS));
 
-            // vp8 codec
+            // h264 coder
             encoder = ElementFactory.make("vp8enc", null);
+            //encoder.set("speed", 7);
+            //encoder.set("threads", 4);
+            
             
             rtpPay = ElementFactory.make("rtpvp8pay", null);
 
-            this.addMany(queue, resample, capsFilter, encoder, rtpPay);
-            Bin.linkMany(queue, resample, capsFilter, encoder, rtpPay);
+            this.addMany(queue, videoscale, ffmpegcs, capsFilter, encoder, rtpPay);
+            Bin.linkMany(queue, videoscale, ffmpegcs, capsFilter, encoder, rtpPay);
 
             sink = new GhostPad("sink", queue.getStaticPad("sink"));
             sink.setActive(true);

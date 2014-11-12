@@ -23,7 +23,11 @@ public class VideoSenderPipeline extends Pipeline{
     /** Prefix to name the rooms bins */
     private static final String SENDER_ROOM_PREFIX = "sender_room";
     
-    private final BaseSrc src = (BaseSrc) ElementFactory.make("alsasrc", null);
+    //from v4l2 (webcam)
+    private BaseSrc src = (BaseSrc) ElementFactory.make("v4l2src", null);
+    
+    
+    
     private final Element tee = ElementFactory.make("tee", null);
     // THE SenderBin to talk with somebody
     VideoSenderBin unicastSender = null;
@@ -31,8 +35,9 @@ public class VideoSenderPipeline extends Pipeline{
     public VideoSenderPipeline(){
         super("video_sender_pipeline");
         // live source => drop stream when in paused state
+        src.set("device", "/dev/video0");
         src.setLive(true);
-
+        
         addMany(src, tee);
         Util.doOrDie("src-tee", linkMany(src, tee));
 

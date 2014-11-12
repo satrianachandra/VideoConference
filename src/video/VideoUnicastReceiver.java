@@ -14,6 +14,7 @@ import org.gstreamer.GhostPad;
 import org.gstreamer.Pad;
 import org.gstreamer.PadLinkReturn;
 import org.gstreamer.State;
+import util.Util;
 
 /**
  *
@@ -22,6 +23,7 @@ import org.gstreamer.State;
 class VideoUnicastReceiver extends Bin{
     /** Name of _the_ unicast bin */
     private static final String RECEIVER_UNICAST = "receiver_unicast";
+    private static final String VIDEO_CAPS="application/x-rtp, media=(string)video, clock-rate=(int)90000,encoding-name=(string)VP8-DRAFT-IETF-01,width=320, height=240";
     
     private Element udpSource;
     private Element rtpBin;
@@ -31,8 +33,12 @@ class VideoUnicastReceiver extends Bin{
     
     public VideoUnicastReceiver(final Element connectSrcTo){
         udpSource = ElementFactory.make("udpsrc", null);
-        udpSource.set("port", 0); // ask for a port
-        udpSource.getStaticPad("src").setCaps(Caps.fromString("video/x-vp8"));
+        //udpSource.set("port", 0); // ask for a port
+        
+        //for testing, make it static
+        udpSource.set("port", 5050); // ask for a port
+        
+        udpSource.getStaticPad("src").setCaps(Caps.fromString(VIDEO_CAPS));
         
         rtpBin = ElementFactory.make("gstrtpbin", null);
         
@@ -47,10 +53,8 @@ class VideoUnicastReceiver extends Bin{
             // sync them
             decoder.syncStateWithParent();
             // link them
-            if (pad.link(decoder.getStaticPad("sink")).equals(
-            PadLinkReturn.OK)){
-                System.out.println("okok");
-            };
+            Util.doOrDie("pad_to_Decoder_sink",pad.link(decoder.getStaticPad("sink")).equals(
+            PadLinkReturn.OK));
             /*
             * now that we have what we should connect to it, add the
             * ghost pad
@@ -72,9 +76,7 @@ class VideoUnicastReceiver extends Bin{
         addMany(udpSource, rtpBin);
         //link them
         Pad pad = rtpBin.getRequestPad("recv_rtp_sink_0");
-        if(udpSource.getStaticPad("src").link(pad).equals(PadLinkReturn.OK)){
-            System.out.println("okok2");
-        };
+        Util.doOrDie("udp_src_to_rtpBin_recv_rtp_sink_0", udpSource.getStaticPad("src").link(pad).equals(PadLinkReturn.OK));
         /*
         * get this ready for playing, after this the UDP port will have been
         * assigned too
