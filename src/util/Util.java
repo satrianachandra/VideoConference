@@ -13,7 +13,7 @@ public class Util {
     
     public static void doOrDie(String reason,boolean result){
         if (!result){
-            System.out.println(reason);
+            System.out.println("Error: "+reason);
         }
     }
     

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package video;
+package audio;
 
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
@@ -14,22 +14,21 @@ import util.Config;
  *
  * @author chandra
  */
-public class VideoReceiverPipeline extends Pipeline{
+public class AudioReceiverPipeline extends Pipeline{
     
-    VideoUnicastReceiver unicastReceiver = null;
+    AudioUnicastReceiver unicastReceiver = null;
     private static final String RECEIVER_ROOM_PREFIX = "receiver_room";
     
-    //private final Element adder = ElementFactory.make("liveadder", null);
-    //private final Element sink = ElementFactory.make("xvimagesink", null);
-    private final Element sink = ElementFactory.make("autovideosink", null);
+    private final Element adder = ElementFactory.make("liveadder", null);
+    private final Element sink = ElementFactory.make("autoaudiosink", null);
     
-    public VideoReceiverPipeline(){
-        super("video_receiver_pipeline");
-        add(sink);
-        link(sink);
+    public AudioReceiverPipeline(){
+        super("audio_receiver_pipeline");
+        //add(sink);
+        //link(sink);
         
-        //addMany(adder, sink);
-        //linkMany(adder, sink);
+        addMany(adder, sink);
+        linkMany(adder, sink);
 
         
         play();
@@ -39,8 +38,8 @@ public class VideoReceiverPipeline extends Pipeline{
     //public int receiveFromUnicast(Element myRtpBin) {
     public int receiveFromUnicast() {
         // create the receiver bin
-        //unicastReceiver = new VideoUnicastReceiver(sink,myRtpBin);
-        unicastReceiver = new VideoUnicastReceiver(sink);
+        //unicastReceiver = new AudioUnicastReceiver(adder,myRtpBin);
+        unicastReceiver = new AudioUnicastReceiver(adder);
         // add it to this
         add(unicastReceiver);
         unicastReceiver.syncStateWithParent();
@@ -57,7 +56,7 @@ public class VideoReceiverPipeline extends Pipeline{
 
     public void receiveFromRoom(int roomId, long ssrcToIgnore) {
         // create the receiver bin
-        VideoRoomReceiver room = new VideoRoomReceiver(RECEIVER_ROOM_PREFIX + roomId,
+        AudioRoomReceiver room = new AudioRoomReceiver(RECEIVER_ROOM_PREFIX + roomId,
         Config.BASE_IP + roomId, Config.RTP_MULTICAST_PORT,
         ssrcToIgnore);
         // add it to this
@@ -68,7 +67,7 @@ public class VideoReceiverPipeline extends Pipeline{
     }
     
     public void stopRoomReceiving(int roomId) {
-        ((VideoRoomReceiver) getElementByName(RECEIVER_ROOM_PREFIX + roomId))
+        ((AudioRoomReceiver) getElementByName(RECEIVER_ROOM_PREFIX + roomId))
         .getOut();
     }
 

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package video;
+package audio;
 
 import javax.tools.Tool;
 import org.gstreamer.Bin;
@@ -20,10 +20,10 @@ import util.Util;
  *
  * @author chandra
  */
-class VideoUnicastReceiver extends Bin{
+class AudioUnicastReceiver extends Bin{
     /** Name of _the_ unicast bin */
     private static final String RECEIVER_UNICAST = "receiver_unicast";
-    private static final String VIDEO_CAPS="application/x-rtp, media=(string)video, clock-rate=(int)90000,encoding-name=(string)VP8-DRAFT-IETF-01,width=320, height=240";
+    private static final String AUDIO_CAPS="application/x-rtp,media=(string)audio,clock-rate=(int)8000,encoding-name=(string)PCMA";
     
     private Element udpSource;
     private Element rtpBin;
@@ -31,27 +31,28 @@ class VideoUnicastReceiver extends Bin{
     
     private int port=0;
     
-    //public VideoUnicastReceiver(final Element connectSrcTo,Element myRtpBin){
-    public VideoUnicastReceiver(final Element connectSrcTo){
+    //public AudioUnicastReceiver(final Element connectSrcTo,Element myRtpBin ){
+    public AudioUnicastReceiver(final Element connectSrcTo){
         udpSource = ElementFactory.make("udpsrc", null);
         //udpSource.set("port", 0); // ask for a port
         
         //for testing, make it static
-        udpSource.set("port", 5050); // ask for a port
+        udpSource.set("port", 5055); // ask for a port
         
-        udpSource.getStaticPad("src").setCaps(Caps.fromString(VIDEO_CAPS));
+        udpSource.getStaticPad("src").setCaps(Caps.fromString(AUDIO_CAPS));
         
+        //rtpBin = ElementFactory.make("gstrtpbin", null);
         rtpBin = ElementFactory.make("gstrtpbin", null);
         //rtpBin = myRtpBin;
         
         rtpBin.connect(new Element.PAD_ADDED() {
             @Override
             public void padAdded(Element element, Pad pad) {
-            if (pad.getName().startsWith("recv_rtp_src_0")) {
+            if (pad.getName().startsWith("recv_rtp_src_1")) {
             // create elements
-            VideoRtpDecodeBin decoder = new VideoRtpDecodeBin(false);
+            AudioRtpDecodeBin decoder = new AudioRtpDecodeBin(false);
             // add them
-            VideoUnicastReceiver.this.add(decoder);
+            AudioUnicastReceiver.this.add(decoder);
             // sync them
             decoder.syncStateWithParent();
             // link them
@@ -69,7 +70,7 @@ class VideoUnicastReceiver extends Bin{
             * asked to do
             */
         
-            Element.linkMany(VideoUnicastReceiver.this, connectSrcTo);
+            Util.doOrDie("unicastreceiver-connectsrcto", Element.linkMany(AudioUnicastReceiver.this, connectSrcTo));
             }
             }
        });
@@ -77,8 +78,8 @@ class VideoUnicastReceiver extends Bin{
         //add them to the pipeline
         addMany(udpSource, rtpBin);
         //link them
-        Pad pad = rtpBin.getRequestPad("recv_rtp_sink_0");
-        Util.doOrDie("udp_src_to_rtpBin_recv_rtp_sink_0", udpSource.getStaticPad("src").link(pad).equals(PadLinkReturn.OK));
+        Pad pad = rtpBin.getRequestPad("recv_rtp_sink_1");
+        Util.doOrDie("udp_src_to_rtpBin_recv_rtp_sink_1", udpSource.getStaticPad("src").link(pad).equals(PadLinkReturn.OK));
         /*
         * get this ready for playing, after this the UDP port will have been
         * assigned too
