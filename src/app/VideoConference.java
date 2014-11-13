@@ -44,8 +44,6 @@ public class VideoConference {
     
     
     public VideoConference(){
-        //
-        
         
         //communication with server
         
