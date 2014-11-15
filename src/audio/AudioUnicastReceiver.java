@@ -5,7 +5,6 @@
  */
 package audio;
 
-import javax.tools.Tool;
 import org.gstreamer.Bin;
 import org.gstreamer.Caps;
 import org.gstreamer.Element;
@@ -16,6 +15,9 @@ import org.gstreamer.PadLinkReturn;
 import org.gstreamer.State;
 import util.Util;
 
+import video.VideoRtpDecodeBin;
+
+
 /**
  *
  * @author chandra
@@ -25,25 +27,42 @@ class AudioUnicastReceiver extends Bin{
     private static final String RECEIVER_UNICAST = "receiver_unicast";
     private static final String AUDIO_CAPS="application/x-rtp,media=(string)audio,clock-rate=(int)8000,encoding-name=(string)PCMA";
     
-    private Element udpSource;
+    
+    private Element rtpasrc,rtcpasrc,rtcpasink;
     private Element rtpBin;
     private Pad src;
     
     private int port=0;
     
+    
+    //video
+    private static final String VIDEO_CAPS="application/x-rtp, media=(string)video, clock-rate=(int)90000,encoding-name=(string)VP8-DRAFT-IETF-01,width=320, height=240";
+    private Element rtpvsrc,rtcpvsrc,rtcpvsink;
+    private Pad srcV;
+    ////
+    
     //public AudioUnicastReceiver(final Element connectSrcTo,Element myRtpBin ){
-    public AudioUnicastReceiver(final Element connectSrcTo){
-        udpSource = ElementFactory.make("udpsrc", null);
+    public AudioUnicastReceiver(final Element connectSrcTo,final Element connectSrcToV){
+        rtpasrc = ElementFactory.make("udpsrc", "rtpasrc");
         //udpSource.set("port", 0); // ask for a port
         
         //for testing, make it static
-        udpSource.set("port", 5055); // ask for a port
+        rtpasrc.set("port", 5055); // ask for a port
+        rtpasrc.getStaticPad("src").setCaps(Caps.fromString(AUDIO_CAPS));
         
-        udpSource.getStaticPad("src").setCaps(Caps.fromString(AUDIO_CAPS));
+        rtcpasrc = ElementFactory.make("udpsrc", "rtcpasrc");
+        rtcpasrc.set("port", 5056);
         
-        //rtpBin = ElementFactory.make("gstrtpbin", null);
+        rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
+        rtcpasink.set("host", "127.0.0.1");
+        rtcpasink.set("port", 5057);
+        rtcpasink.set("async", false);
+        rtcpasink.set("sync", true);
+        
+        
         rtpBin = ElementFactory.make("gstrtpbin", null);
-        //rtpBin = myRtpBin;
+        rtpBin.set("latency", 1000);
+        rtpBin.set("use-pipeline-clock",true);
         
         rtpBin.connect(new Element.PAD_ADDED() {
             @Override
@@ -62,7 +81,7 @@ class AudioUnicastReceiver extends Bin{
             * now that we have what we should connect to it, add the
             * ghost pad
             */
-            src = new GhostPad("src", decoder.getStaticPad("src"));
+            src = new GhostPad("srcA", decoder.getStaticPad("src"));
             src.setActive(true);
             addPad(src);
             /*
@@ -75,17 +94,96 @@ class AudioUnicastReceiver extends Bin{
             }
        });
        
+        //////Video
+        rtpvsrc = ElementFactory.make("udpsrc", "rtpvsrc");
+        //udpSource.set("port", 0); // ask for a port
+        
+        //for testing, make it static
+        //int testing_receiver_port = 5050;
+        rtpvsrc.set("port", 5050); // ask for a port
+        rtpvsrc.getStaticPad("src").setCaps(Caps.fromString(VIDEO_CAPS));
+        
+        
+        rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
+        rtcpvsrc.set("port", 5051);
+        
+        rtcpvsink = ElementFactory.make("udpsink", "rtcpvsink");
+        rtcpvsink.set("host", "127.0.0.1");
+        rtcpvsink.set("port", 5052);
+        rtcpvsink.set("async", false);
+        rtcpvsink.set("sync", true);
+        
+        rtpBin.connect(new Element.PAD_ADDED() {
+            @Override
+            public void padAdded(Element element, Pad pad) {
+            if (pad.getName().startsWith("recv_rtp_src_0")) {
+            // create elements
+            VideoRtpDecodeBin decoder = new VideoRtpDecodeBin(false);
+            // add them
+            AudioUnicastReceiver.this.add(decoder);
+            // sync them
+            decoder.syncStateWithParent();
+            // link them
+            Util.doOrDie("pad_to_Decoder_sink",pad.link(decoder.getStaticPad("sink")).equals(
+            PadLinkReturn.OK));
+            /*
+            * now that we have what we should connect to it, add the
+            * ghost pad
+            */
+            srcV = new GhostPad("srcV", decoder.getStaticPad("src"));
+            srcV.setActive(true);
+            addPad(srcV);
+            /*
+            * connect this UnicastReceiver to the Element we've been
+            * asked to do
+            */
+        
+            Element.linkMany(AudioUnicastReceiver.this, connectSrcToV);
+            }
+            }
+        });
+       
+        
+        ///////////////
+        
+        
+        
+        
         //add them to the pipeline
-        addMany(udpSource, rtpBin);
+        addMany(rtcpasink,rtcpasrc,rtpasrc, rtpBin);
+        addMany(rtcpvsink,rtcpvsrc,rtpvsrc);
         //link them
         Pad pad = rtpBin.getRequestPad("recv_rtp_sink_1");
-        Util.doOrDie("udp_src_to_rtpBin_recv_rtp_sink_1", udpSource.getStaticPad("src").link(pad).equals(PadLinkReturn.OK));
+        Util.doOrDie("udp_src_to_rtpBin_recv_rtp_sink_1", rtpasrc.getStaticPad("src").link(pad).equals(PadLinkReturn.OK));
+        
+        Util.doOrDie("rtpvsrc_to_rtpBin_recv_rtcp_sink_1", 
+                rtcpasrc.getStaticPad("src").link(rtpBin.getRequestPad("recv_rtcp_sink_1")).equals(PadLinkReturn.OK));
+        
+        Util.doOrDie("rtpBin-rtcpvsink_sink", 
+                rtpBin.getRequestPad("send_rtcp_src_1").link(rtcpasink.getStaticPad("sink")).equals(PadLinkReturn.OK));
+        
+        
+        //video
+        //link them
+        Pad padV = rtpBin.getRequestPad("recv_rtp_sink_0");
+        Util.doOrDie("rtpvsrc_to_rtpBin_recv_rtp_sink_0", 
+                rtpvsrc.getStaticPad("src").link(padV).equals(PadLinkReturn.OK));
+        
+        Util.doOrDie("rtpvsrc_to_rtpBin_recv_rtcp_sink_0", 
+                rtcpvsrc.getStaticPad("src").link(rtpBin.getRequestPad("recv_rtcp_sink_0")).equals(PadLinkReturn.OK));
+        
+        Util.doOrDie("rtpBin-rtcpvsink_sink", 
+                rtpBin.getRequestPad("send_rtcp_src_0").link(rtcpvsink.getStaticPad("sink")).equals(PadLinkReturn.OK));
+        
+        ////////////
+        
+        
         /*
         * get this ready for playing, after this the UDP port will have been
         * assigned too
         */
         pause();
-        port = (Integer) udpSource.get("port");
+        port = (Integer) rtpasrc.get("port");
 
         
     }

@@ -24,7 +24,9 @@ import util.Util;
 public class VideoSenderBin extends Bin{
     private Pad sink;
     private VideoRtpEncodeBin encoder;
-    private Element udpSink;
+    //private Element udpSink;
+    private Element rtpvsink,rtcpvsink,rtcpvsrc;
+    
     private RTPBin rtpBin;
     
     public VideoSenderBin(String name, String ip, int port, boolean multicast){
@@ -35,17 +37,28 @@ public class VideoSenderBin extends Bin{
         // asking this put the gstrtpbin plugin in sender mode
         Pad rtpSink0 = rtpBin.getRequestPad("send_rtp_sink_0");
 
-        udpSink = ElementFactory.make("udpsink", null);
-        udpSink.set("host", ip);
-        udpSink.set("port", port);
+        rtpvsink = ElementFactory.make("udpsink", "rtpvsink");
+        rtpvsink.set("host", ip);
+        rtpvsink.set("port", 5050);
         if (multicast) {
                 // make OS automatically join multicast group
-                udpSink.set("auto-multicast", true);
+                rtpvsink.set("auto-multicast", true);
         }
-        udpSink.set("async", false);
+        rtpvsink.set("async", false);
+        rtpvsink.set("sync", false);
 
+        rtcpvsink = ElementFactory.make("udpsink", "rtcpvsink");
+        rtcpvsink.set("host", ip);
+        rtcpvsink.set("port", 5051);
+        rtcpvsink.set("async", false);
+        rtcpvsink.set("sync", false);
+        
+        rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
+        rtcpvsrc.set("port", 5052);
+        
+        
         // ############## ADD THEM TO PIPELINE ####################
-        addMany(encoder, rtpBin, udpSink);
+        addMany(encoder, rtpBin, rtpvsink,rtcpvsink,rtcpvsrc);
 
         // ###################### LINK THEM ##########################
         sink = new GhostPad("sink", encoder.getStaticPad("sink"));
@@ -59,9 +72,20 @@ public class VideoSenderBin extends Bin{
         Util.doOrDie(
                         "rtpbin-udpSink",
                         rtpBin.getStaticPad("send_rtp_src_0")
-                                        .link(udpSink.getStaticPad("sink"))
+                                        .link(rtpvsink.getStaticPad("sink"))
                                         .equals(PadLinkReturn.OK));
     
+        Util.doOrDie(
+                        "rtpbin_send_rtcp_src_0-rtcpvsink",
+                        rtpBin.getRequestPad("send_rtcp_src_0")
+                                        .link(rtcpvsink.getStaticPad("sink"))
+                                        .equals(PadLinkReturn.OK));
+        
+        Util.doOrDie(
+                        "rtcpvsrc-rtpBin_rec_rtcp_sink_0",
+                        rtcpvsrc.getStaticPad("src")
+                                        .link(rtpBin.getRequestPad("recv_rtcp_sink_0"))
+                                        .equals(PadLinkReturn.OK));
     }
     
     private Element getElementByNameStartingWith(List<Element> elts,

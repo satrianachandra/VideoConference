@@ -25,6 +25,7 @@ public class VideoReceiverPipeline extends Pipeline{
     
     public VideoReceiverPipeline(){
         super("video_receiver_pipeline");
+        //sink.set("sync", true);
         add(sink);
         link(sink);
         

@@ -27,9 +27,11 @@ public class Main {
                 System.out.println("Receiving");
                 
                 //Element myRtpBin = ElementFactory.make("gstrtpbin", null);
-                int portVideo = vc2.getReceiverVideo().receiveFromUnicast();
+                //int portVideo = vc2.getReceiverVideo().receiveFromUnicast(myRtpBin);
+                //int portAudio = vc2.getReceiverAudio().receiveFromUnicast(myRtpBin);
+                //int portVideo = vc2.getReceiverVideo().receiveFromUnicast();
                 int portAudio = vc2.getReceiverAudio().receiveFromUnicast();
-                System.out.println("receiver portVideo"+portVideo);
+                //System.out.println("receiver portVideo"+portVideo);
                 System.out.println("receiver portAudio"+portAudio);
                try {
                    Thread.sleep(1000*60*10);
@@ -40,6 +42,12 @@ public class Main {
            }
        }).start();
        
+       try {
+           Thread.sleep(1000);
+       } catch (InterruptedException ex) {
+           Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+       }
+       
        new Thread(new Runnable() {
 
            @Override
@@ -49,7 +57,7 @@ public class Main {
        
                 //Testing
                 System.out.println("Send");
-                vc.getSenderVideo().streamTo("127.0.0.1", 5050);
+                //vc.getSenderVideo().streamTo("127.0.0.1", 5050);
                 vc.getSenderAudio().streamTo("127.0.0.1", 5055);
                 
                 try {

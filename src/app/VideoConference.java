@@ -20,7 +20,7 @@ import video.VideoSenderPipeline;
  */
 public class VideoConference {
 
-    private Element rtpBin;
+    private Element myRtpBin;
 //    private Element rtpBin2;
     
     /** own username */
@@ -52,11 +52,11 @@ public class VideoConference {
         Gst.init("AudioVideoConferencing", new String[] { "--gst-debug-level=2",
                         "--gst-debug-no-color" });
         
-        rtpBin = ElementFactory.make("gstrtpbin", null);
+        myRtpBin = ElementFactory.make("gstrtpbin", null);
        // rtpBin2 = ElementFactory.make("gstrtpbin", null);
         
-        receiverVideo = new VideoReceiverPipeline();
-        senderVideo = new VideoSenderPipeline();
+       // receiverVideo = new VideoReceiverPipeline();
+       // senderVideo = new VideoSenderPipeline();
         
         receiverAudio = new AudioReceiverPipeline();
         senderAudio = new AudioSenderPipeline();
@@ -117,12 +117,13 @@ public class VideoConference {
                 contact = contact.substring(0, contact.length() - 15);
         }
         // open a local port for our (maybe) future conversation
-        //int portVideo = this.receiverVideo.receiveFromUnicast(rtpBin);
+        //int portVideo = this.receiverVideo.receiveFromUnicast(myRtpBin);
         int portVideo = this.receiverVideo.receiveFromUnicast();
         //send(new Call(username, contact, "0", port));
         // remember name of my friend I'm talking with
         
         int portAudio = this.receiverAudio.receiveFromUnicast();
+        //int portAudio = this.receiverAudio.receiveFromUnicast(myRtpBin);
         
         this.friend = contact;
     }
@@ -166,9 +167,11 @@ public class VideoConference {
         int portAudio = -1;
 
         if (answer.equals("yes")) {
+                //portVideo = receiverVideo.receiveFromUnicast(myRtpBin);
                 portVideo = receiverVideo.receiveFromUnicast();
                 this.friend = call.getSender();
                 
+                //portAudio = receiverAudio.receiveFromUnicast();
                 portAudio = receiverAudio.receiveFromUnicast();
                 
                 //gui.getCallBtn().setVisible(false);

@@ -22,14 +22,20 @@ public class AudioReceiverPipeline extends Pipeline{
     private final Element adder = ElementFactory.make("liveadder", null);
     private final Element sink = ElementFactory.make("autoaudiosink", null);
     
+    private final Element sinkV = ElementFactory.make("autovideosink", null);
+    
     public AudioReceiverPipeline(){
         super("audio_receiver_pipeline");
         //add(sink);
         //link(sink);
-        
+        //sink.set("sync", true);
         addMany(adder, sink);
         linkMany(adder, sink);
 
+        //video
+        add(sinkV);
+        link(sinkV);
+        
         
         play();
         
@@ -39,7 +45,7 @@ public class AudioReceiverPipeline extends Pipeline{
     public int receiveFromUnicast() {
         // create the receiver bin
         //unicastReceiver = new AudioUnicastReceiver(adder,myRtpBin);
-        unicastReceiver = new AudioUnicastReceiver(adder);
+        unicastReceiver = new AudioUnicastReceiver(adder,sinkV);
         // add it to this
         add(unicastReceiver);
         unicastReceiver.syncStateWithParent();

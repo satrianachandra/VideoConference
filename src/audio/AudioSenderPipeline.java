@@ -23,13 +23,19 @@ public class AudioSenderPipeline extends Pipeline{
     /** Prefix to name the rooms bins */
     private static final String SENDER_ROOM_PREFIX = "sender_room";
     
-    //from v4l2 (webcam)
+    //from mic
     private BaseSrc src = (BaseSrc) ElementFactory.make("alsasrc", null);
     
+    //from v4l2 (webcam)
+    private BaseSrc srcV = (BaseSrc) ElementFactory.make("v4l2src", null);
     
     
     private final Element tee = ElementFactory.make("tee", null);
     // THE SenderBin to talk with somebody
+    
+    private final Element teeV = ElementFactory.make("tee", null);
+    // THE SenderBin to talk with somebody
+    
     AudioSenderBin unicastSender = null;
     
     public AudioSenderPipeline(){
@@ -38,7 +44,18 @@ public class AudioSenderPipeline extends Pipeline{
         src.setLive(true);
         
         addMany(src, tee);
+        
         Util.doOrDie("src-tee", linkMany(src, tee));
+        
+        
+        //Video
+        srcV.set("device", "/dev/video0");
+        srcV.setLive(true);
+        addMany(srcV,teeV);
+        Util.doOrDie("src-tee", linkMany(srcV, teeV));
+        
+        //
+        
 
     }
     
@@ -76,9 +93,15 @@ public class AudioSenderPipeline extends Pipeline{
         Util.doOrDie(
                         "tee-unicastSender",
                         tee.getRequestPad("src%d")
-                                        .link(unicastSender.getStaticPad("sink"))
+                                        .link(unicastSender.getStaticPad("sinkA"))
                                         .equals(PadLinkReturn.OK));
-
+        
+        Util.doOrDie(
+                        "teeV-unicastSender",
+                        teeV.getRequestPad("src%d")
+                                        .link(unicastSender.getStaticPad("sinkV"))
+                                        .equals(PadLinkReturn.OK));
+        
         play();
     }
     
