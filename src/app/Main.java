@@ -19,7 +19,7 @@ public class Main {
    public static void main(String[]args) {
        
        //Format: User aUser = new User(null, rtpaPort, rtcpasrcPort, rtpvPort, rtcpvsrcPort)
-       User destUser = new User("destIP", 5055, 5056, 5050, 5051);
+       User destUser = new User("127.0.0.1", 5055, 5056, 5050, 5051);
        User myUser = new User("127.0.0.1", 6055, 6056, 6050, 6051);
        User senderUser = destUser;
        
@@ -33,7 +33,7 @@ public class Main {
                System.out.println("Receiving");
                 
                
-               int portAudio = vc2.getReceiver().receiveFromUnicast(myUser,senderUser);
+               int portAudio = vc2.getReceiver().receiveFromUnicast(senderUser,myUser);
                 //System.out.println("receiver portVideo"+portVideo);
                System.out.println("receiver portAudio"+portAudio);
                try {

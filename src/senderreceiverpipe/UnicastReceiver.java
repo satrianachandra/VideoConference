@@ -52,13 +52,17 @@ class UnicastReceiver extends Bin{
         //for testing, make it static
         rtpasrc.set("port", myUser.getrtpaPort()); // ask for a port
         rtpasrc.getStaticPad("src").setCaps(Caps.fromString(AUDIO_CAPS));
+        System.out.println("port rtpasrc "+  myUser.getrtpaPort());
         
         rtcpasrc = ElementFactory.make("udpsrc", "rtcpasrc");
         rtcpasrc.set("port", myUser.getrtcpasrcPort());
+        System.out.println("port rtcpasrc "+  myUser.getrtcpasrcPort());
         
         rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
         rtcpasink.set("host", senderUser.getIpAddress());
+        System.out.println("host sender "+ senderUser.getIpAddress());
         rtcpasink.set("port", senderUser.getrtcpasrcPort());
+        System.out.println("port rtcpasink"+ senderUser.getrtcpasrcPort());
         rtcpasink.set("async", false);
         rtcpasink.set("sync", true);
         
@@ -103,16 +107,18 @@ class UnicastReceiver extends Bin{
         
         //for testing, make it static
         //int testing_receiver_port = 5050;
-        rtpvsrc.set("port", myUser.getrtpaPort()); // ask for a port
+        rtpvsrc.set("port", myUser.getrtpvPort()); // ask for a port
+        System.out.println("port rtpvsrc "+myUser.getrtpvPort());
         rtpvsrc.getStaticPad("src").setCaps(Caps.fromString(VIDEO_CAPS));
         
         
         rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
-        rtcpvsrc.set("port", myUser.getrtcpasrcPort());
+        rtcpvsrc.set("port", myUser.getrtcpvsrcPort());
         
         rtcpvsink = ElementFactory.make("udpsink", "rtcpvsink");
         rtcpvsink.set("host", senderUser.getIpAddress());
         rtcpvsink.set("port", senderUser.getrtcpvsrcPort());
+        System.out.println("port rtcpvsink "+senderUser.getrtcpvsrcPort());
         rtcpvsink.set("async", false);
         rtcpvsink.set("sync", true);
         

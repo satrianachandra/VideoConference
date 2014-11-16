@@ -51,7 +51,9 @@ public class SenderBin extends Bin{
 
         rtpasink = ElementFactory.make("udpsink", "rtpasink");
         rtpasink.set("host", destUser.getIpAddress());
+        System.out.println("hostrtpasink destuser "+destUser.getIpAddress());
         rtpasink.set("port", destUser.getrtpaPort());
+        System.out.println("port rtpasink "+destUser.getrtpaPort());
         
         rtpasink.set("async", false);
         rtpasink.set("sync",false);
@@ -59,11 +61,13 @@ public class SenderBin extends Bin{
         rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
         rtcpasink.set("host", destUser.getIpAddress());
         rtcpasink.set("port", destUser.getrtcpasrcPort());
+        System.out.println("port rtcpasink"+destUser.getrtcpasrcPort());
         rtcpasink.set("async", false);
         rtcpasink.set("sync", false);
         
         rtcpasrc = ElementFactory.make("udpsrc", "rtcpasrc");
         rtcpasrc.set("port", myUser.getrtcpasrcPort());
+        System.out.println("port rtcpasrc"+myUser.getrtcpasrcPort());
         
         if (multicast) {
                 // make OS automatically join multicast group
@@ -80,22 +84,30 @@ public class SenderBin extends Bin{
 
         rtpvsink = ElementFactory.make("udpsink", "rtpvsink");
         rtpvsink.set("host", destUser.getIpAddress());
+        System.out.println("host destuser "+ destUser.getIpAddress());
         rtpvsink.set("port", destUser.getrtpvPort());
-        if (multicast) {
-                // make OS automatically join multicast group
-                rtpvsink.set("auto-multicast", true);
-        }
+        System.out.println("port rtpvsink "+destUser.getrtpvPort());
+        
         rtpvsink.set("async", false);
         rtpvsink.set("sync", false);
 
         rtcpvsink = ElementFactory.make("udpsink", "rtcpvsink");
         rtcpvsink.set("host", destUser.getIpAddress());
+        System.out.println("hostdestuser rtcpvsink"+ destUser.getIpAddress());
         rtcpvsink.set("port", destUser.getrtcpvsrcPort());
+        System.out.println("port rtcpvsink"+ destUser.getrtcpvsrcPort());
         rtcpvsink.set("async", false);
         rtcpvsink.set("sync", false);
         
         rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
         rtcpvsrc.set("port", myUser.getrtcpvsrcPort());
+        if (multicast) {
+                // make OS automatically join multicast group
+                rtpvsink.set("auto-multicast", true);
+                rtcpvsink.set("auto-multicast", true);
+                rtcpvsrc.set("auto-multicast", true);
+        }
+        
         
         //////////////
         
