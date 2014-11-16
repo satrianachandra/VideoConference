@@ -33,7 +33,7 @@ public class VideoRtpEncodeBin extends Bin{
     private Element capsFilter;
 
     //private final String VCAPS = "video/x-raw,width=352,height=288,framerate=15/1";
-    private final String VCAPS = "video/x-raw-yuv, width=320, height=240";
+    private final String VCAPS = "video/x-raw-yuv, width=320, height=240,framerate=15/1";
     
     
     private Pad sink;

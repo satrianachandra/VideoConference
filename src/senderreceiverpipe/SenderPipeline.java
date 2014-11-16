@@ -5,6 +5,7 @@
  */
 package senderreceiverpipe;
 
+import message.User;
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
 import org.gstreamer.PadLinkReturn;
@@ -60,6 +61,7 @@ public class SenderPipeline extends Pipeline{
     }
     
     public long streamTo(int roomId) {
+        /*
         // create the sender bin, name it after the room id
         SenderBin room = new SenderBin(SENDER_ROOM_PREFIX + roomId,
                         Config.BASE_IP + roomId, Config.RTP_MULTICAST_PORT, true);
@@ -75,6 +77,8 @@ public class SenderPipeline extends Pipeline{
         play();
 
         return room.getSSRC();
+                */
+        return -1;
     }
     
     public void stopStreamingToRoom(int roomId) {
@@ -82,9 +86,9 @@ public class SenderPipeline extends Pipeline{
     }
 
     
-    public void streamTo(String ip, int port) {
+    public void streamTo(User myUser,User destUser) {
         // create the sender bin
-        unicastSender = new SenderBin(SENDER_UNICAST, ip, port, false);
+        unicastSender = new SenderBin(SENDER_UNICAST, myUser,destUser, false);
         // add it to this
         add(unicastSender);
         unicastSender.syncStateWithParent();

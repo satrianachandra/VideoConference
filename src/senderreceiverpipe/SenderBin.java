@@ -7,6 +7,7 @@ package senderreceiverpipe;
 
 import audio.AudioRtpEncodeBin;
 import java.util.List;
+import message.User;
 import org.gstreamer.Bin;
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
@@ -37,35 +38,39 @@ public class SenderBin extends Bin{
     
     
     
-    public SenderBin(String name, String ip, int port, boolean multicast){
+    public SenderBin(String name, User myUser, User destUser, boolean multicast){
         super(name);   
         
         encoder = new AudioRtpEncodeBin();
         encoder.syncStateWithParent();
         rtpBin = new RTPBin((String) null);
-        rtpBin.set("use-pipeline-clock", true);
+        
         
         // asking this put the gstrtpbin plugin in sender mode
         Pad rtpSink1 = rtpBin.getRequestPad("send_rtp_sink_1");
 
         rtpasink = ElementFactory.make("udpsink", "rtpasink");
-        rtpasink.set("host", ip);
-        rtpasink.set("port", 5055);
-        if (multicast) {
-                // make OS automatically join multicast group
-                rtpasink.set("auto-multicast", true);
-        }
+        rtpasink.set("host", destUser.getIpAddress());
+        rtpasink.set("port", destUser.getrtpaPort());
+        
         rtpasink.set("async", false);
         rtpasink.set("sync",false);
 
         rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
-        rtcpasink.set("host", ip);
-        rtcpasink.set("port", 5056);
+        rtcpasink.set("host", destUser.getIpAddress());
+        rtcpasink.set("port", destUser.getrtcpasrcPort());
         rtcpasink.set("async", false);
         rtcpasink.set("sync", false);
         
         rtcpasrc = ElementFactory.make("udpsrc", "rtcpasrc");
-        rtcpasrc.set("port", 5057);
+        rtcpasrc.set("port", myUser.getrtcpasrcPort());
+        
+        if (multicast) {
+                // make OS automatically join multicast group
+                rtpasink.set("auto-multicast", true);
+                rtcpasink.set("auto-multicast", true);
+                rtcpasrc.set("auto-multicast", true);
+        }
         
         /////////////Video
         encoderV = new VideoRtpEncodeBin();
@@ -74,8 +79,8 @@ public class SenderBin extends Bin{
         Pad rtpSink0 = rtpBin.getRequestPad("send_rtp_sink_0");
 
         rtpvsink = ElementFactory.make("udpsink", "rtpvsink");
-        rtpvsink.set("host", ip);
-        rtpvsink.set("port", 5050);
+        rtpvsink.set("host", destUser.getIpAddress());
+        rtpvsink.set("port", destUser.getrtpvPort());
         if (multicast) {
                 // make OS automatically join multicast group
                 rtpvsink.set("auto-multicast", true);
@@ -84,13 +89,13 @@ public class SenderBin extends Bin{
         rtpvsink.set("sync", false);
 
         rtcpvsink = ElementFactory.make("udpsink", "rtcpvsink");
-        rtcpvsink.set("host", ip);
-        rtcpvsink.set("port", 5051);
+        rtcpvsink.set("host", destUser.getIpAddress());
+        rtcpvsink.set("port", destUser.getrtcpvsrcPort());
         rtcpvsink.set("async", false);
         rtcpvsink.set("sync", false);
         
         rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
-        rtcpvsrc.set("port", 5052);
+        rtcpvsrc.set("port", myUser.getrtcpvsrcPort());
         
         //////////////
         

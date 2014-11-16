@@ -6,6 +6,7 @@
 package senderreceiverpipe;
 
 import audio.AudioRoomReceiver;
+import message.User;
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
 import org.gstreamer.Pipeline;
@@ -43,10 +44,10 @@ public class ReceiverPipeline extends Pipeline{
     }
     
     //public int receiveFromUnicast(Element myRtpBin) {
-    public int receiveFromUnicast() {
+    public int receiveFromUnicast(User myUser,User senderUser) {
         // create the receiver bin
         //unicastReceiver = new AudioUnicastReceiver(adder,myRtpBin);
-        unicastReceiver = new UnicastReceiver(adder,sinkV);
+        unicastReceiver = new UnicastReceiver(myUser,senderUser, adder,sinkV);
         // add it to this
         add(unicastReceiver);
         unicastReceiver.syncStateWithParent();

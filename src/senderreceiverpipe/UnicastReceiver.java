@@ -7,6 +7,7 @@ package senderreceiverpipe;
 
 
 import audio.AudioRtpDecodeBin;
+import message.User;
 import org.gstreamer.Bin;
 import org.gstreamer.Caps;
 import org.gstreamer.Element;
@@ -44,20 +45,20 @@ class UnicastReceiver extends Bin{
     ////
     
     //public AudioUnicastReceiver(final Element connectSrcTo,Element myRtpBin ){
-    public UnicastReceiver(final Element connectSrcTo,final Element connectSrcToV){
+    public UnicastReceiver(User myUser,User senderUser, final Element connectSrcTo,final Element connectSrcToV){
         rtpasrc = ElementFactory.make("udpsrc", "rtpasrc");
         //udpSource.set("port", 0); // ask for a port
         
         //for testing, make it static
-        rtpasrc.set("port", 5055); // ask for a port
+        rtpasrc.set("port", myUser.getrtpaPort()); // ask for a port
         rtpasrc.getStaticPad("src").setCaps(Caps.fromString(AUDIO_CAPS));
         
         rtcpasrc = ElementFactory.make("udpsrc", "rtcpasrc");
-        rtcpasrc.set("port", 5056);
+        rtcpasrc.set("port", myUser.getrtcpasrcPort());
         
         rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
-        rtcpasink.set("host", "127.0.0.1");
-        rtcpasink.set("port", 5057);
+        rtcpasink.set("host", senderUser.getIpAddress());
+        rtcpasink.set("port", senderUser.getrtcpasrcPort());
         rtcpasink.set("async", false);
         rtcpasink.set("sync", true);
         
@@ -102,16 +103,16 @@ class UnicastReceiver extends Bin{
         
         //for testing, make it static
         //int testing_receiver_port = 5050;
-        rtpvsrc.set("port", 5050); // ask for a port
+        rtpvsrc.set("port", myUser.getrtpaPort()); // ask for a port
         rtpvsrc.getStaticPad("src").setCaps(Caps.fromString(VIDEO_CAPS));
         
         
         rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
-        rtcpvsrc.set("port", 5051);
+        rtcpvsrc.set("port", myUser.getrtcpasrcPort());
         
         rtcpvsink = ElementFactory.make("udpsink", "rtcpvsink");
-        rtcpvsink.set("host", "127.0.0.1");
-        rtcpvsink.set("port", 5052);
+        rtcpvsink.set("host", senderUser.getIpAddress());
+        rtcpvsink.set("port", senderUser.getrtcpvsrcPort());
         rtcpvsink.set("async", false);
         rtcpvsink.set("sync", true);
         
