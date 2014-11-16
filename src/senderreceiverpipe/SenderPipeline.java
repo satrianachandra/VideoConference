@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package video;
+package senderreceiverpipe;
 
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
@@ -17,35 +17,51 @@ import util.Util;
  *
  * @author chandra
  */
-public class VideoSenderPipeline extends Pipeline{
+public class SenderPipeline extends Pipeline{
     /** Name _the_ unicast sender bin */
     private static final String SENDER_UNICAST = "sender_unicast";
     /** Prefix to name the rooms bins */
     private static final String SENDER_ROOM_PREFIX = "sender_room";
     
-    //from v4l2 (webcam)
-    private BaseSrc src = (BaseSrc) ElementFactory.make("v4l2src", null);
+    //from mic
+    private BaseSrc src = (BaseSrc) ElementFactory.make("alsasrc", null);
     
+    //from v4l2 (webcam)
+    private BaseSrc srcV = (BaseSrc) ElementFactory.make("v4l2src", null);
     
     
     private final Element tee = ElementFactory.make("tee", null);
     // THE SenderBin to talk with somebody
-    VideoSenderBin unicastSender = null;
     
-    public VideoSenderPipeline(){
-        super("video_sender_pipeline");
+    private final Element teeV = ElementFactory.make("tee", null);
+    // THE SenderBin to talk with somebody
+    
+    SenderBin unicastSender = null;
+    
+    public SenderPipeline(){
+        super("audio_sender_pipeline");
         // live source => drop stream when in paused state
-        src.set("device", "/dev/video0");
         src.setLive(true);
         
         addMany(src, tee);
+        
         Util.doOrDie("src-tee", linkMany(src, tee));
+        
+        
+        //Video
+        srcV.set("device", "/dev/video0");
+        srcV.setLive(true);
+        addMany(srcV,teeV);
+        Util.doOrDie("src-tee", linkMany(srcV, teeV));
+        
+        //
+        
 
     }
     
     public long streamTo(int roomId) {
         // create the sender bin, name it after the room id
-        VideoSenderBin room = new VideoSenderBin(SENDER_ROOM_PREFIX + roomId,
+        SenderBin room = new SenderBin(SENDER_ROOM_PREFIX + roomId,
                         Config.BASE_IP + roomId, Config.RTP_MULTICAST_PORT, true);
         // add it to this
         add(room);
@@ -62,13 +78,13 @@ public class VideoSenderPipeline extends Pipeline{
     }
     
     public void stopStreamingToRoom(int roomId) {
-        ((VideoSenderBin) getElementByName(SENDER_ROOM_PREFIX + roomId)).getOut();
+        ((SenderBin) getElementByName(SENDER_ROOM_PREFIX + roomId)).getOut();
     }
 
     
     public void streamTo(String ip, int port) {
         // create the sender bin
-        unicastSender = new VideoSenderBin(SENDER_UNICAST, ip, port, false);
+        unicastSender = new SenderBin(SENDER_UNICAST, ip, port, false);
         // add it to this
         add(unicastSender);
         unicastSender.syncStateWithParent();
@@ -77,9 +93,15 @@ public class VideoSenderPipeline extends Pipeline{
         Util.doOrDie(
                         "tee-unicastSender",
                         tee.getRequestPad("src%d")
-                                        .link(unicastSender.getStaticPad("sink"))
+                                        .link(unicastSender.getStaticPad("sinkA"))
                                         .equals(PadLinkReturn.OK));
-
+        
+        Util.doOrDie(
+                        "teeV-unicastSender",
+                        teeV.getRequestPad("src%d")
+                                        .link(unicastSender.getStaticPad("sinkV"))
+                                        .equals(PadLinkReturn.OK));
+        
         play();
     }
     

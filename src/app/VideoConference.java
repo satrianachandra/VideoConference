@@ -5,14 +5,13 @@
  */
 package app;
 
-import audio.AudioReceiverPipeline;
-import audio.AudioSenderPipeline;
+import senderreceiverpipe.ReceiverPipeline;
+import senderreceiverpipe.SenderPipeline;
 import message.Call;
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
 import org.gstreamer.Gst;
-import video.VideoReceiverPipeline;
-import video.VideoSenderPipeline;
+
 
 /**
  *
@@ -32,15 +31,11 @@ public class VideoConference {
     
     /** TCP connection to server */
     //private ControlChannel control;
-    /** GStreamer pipeline to receive from rooms and contact */
-    private VideoReceiverPipeline receiverVideo;
-    /** GStreamer pipeline to send to rooms and contact */
-    private VideoSenderPipeline senderVideo;
     
     /** GStreamer pipeline to receive from rooms and contact */
-    private AudioReceiverPipeline receiverAudio;
+    private ReceiverPipeline receiverAudio;
     /** GStreamer pipeline to send to rooms and contact */
-    private AudioSenderPipeline senderAudio;
+    private SenderPipeline senderAudio;
     
     
     public VideoConference(){
@@ -58,8 +53,8 @@ public class VideoConference {
        // receiverVideo = new VideoReceiverPipeline();
        // senderVideo = new VideoSenderPipeline();
         
-        receiverAudio = new AudioReceiverPipeline();
-        senderAudio = new AudioSenderPipeline();
+        receiverAudio = new ReceiverPipeline();
+        senderAudio = new SenderPipeline();
         
     }
     
@@ -68,8 +63,8 @@ public class VideoConference {
          * remember my SSRC to remove it from the incoming stream from multicast
          * (prevents echo of my own voice)
          */
-        long mySSRC = senderVideo.streamTo(roomId);
-        receiverVideo.receiveFromRoom(roomId, mySSRC);
+        //long mySSRC = senderAudio.streamTo(roomId);
+        //receiverAudio.receiveFromRoom(roomId, mySSRC);
 
             /*
         send(new Join(roomId));
@@ -106,8 +101,8 @@ public class VideoConference {
                 }
         }*/
         
-        senderVideo.stopStreamingToRoom(roomId);
-        receiverVideo.stopRoomReceiving(roomId);
+        //senderAudio.stopStreamingToRoom(roomId);
+        //receiverAudio.stopRoomReceiving(roomId);
         senderAudio.stopStreamingToRoom(roomId);
         receiverAudio.stopRoomReceiving(roomId);
     }
@@ -118,7 +113,7 @@ public class VideoConference {
         }
         // open a local port for our (maybe) future conversation
         //int portVideo = this.receiverVideo.receiveFromUnicast(myRtpBin);
-        int portVideo = this.receiverVideo.receiveFromUnicast();
+        //int portVideo = this.receiverAudio.receiveFromUnicast();
         //send(new Call(username, contact, "0", port));
         // remember name of my friend I'm talking with
         
@@ -129,7 +124,7 @@ public class VideoConference {
     }
 
     public void call(String ipReceiver, int port) {
-        senderVideo.streamTo(ipReceiver, port);
+        //senderVideo.streamTo(ipReceiver, port);
         senderAudio.streamTo(ipReceiver, port);
         //gui.getCallBtn().setVisible(false);
         //gui.getHangUpBtn().setVisible(true);
@@ -150,9 +145,9 @@ public class VideoConference {
     */
     public void stopCall() {
            // stop streaming from friend
-           receiverVideo.stopUnicastReceiving();
+           //receiverVideo.stopUnicastReceiving();
            // stop streaming to friend
-           senderVideo.stopStreamingToUnicast();
+           //senderVideo.stopStreamingToUnicast();
 
            receiverAudio.stopUnicastReceiving();
            // stop streaming to friend
@@ -168,11 +163,11 @@ public class VideoConference {
 
         if (answer.equals("yes")) {
                 //portVideo = receiverVideo.receiveFromUnicast(myRtpBin);
-                portVideo = receiverVideo.receiveFromUnicast();
-                this.friend = call.getSender();
+                //portVideo = receiverVideo.receiveFromUnicast();
                 
                 //portAudio = receiverAudio.receiveFromUnicast();
                 portAudio = receiverAudio.receiveFromUnicast();
+                this.friend = call.getSender();
                 
                 //gui.getCallBtn().setVisible(false);
                 //gui.getHangUpBtn().setVisible(true);
@@ -183,19 +178,11 @@ public class VideoConference {
     }
 
     
-    public VideoSenderPipeline getSenderVideo(){
-        return this.senderVideo;
-    }
-    
-    public VideoReceiverPipeline getReceiverVideo(){
-        return this.receiverVideo;
-    }
-    
-    public AudioSenderPipeline getSenderAudio(){
+    public SenderPipeline getSenderAudio(){
         return this.senderAudio;
     }
     
-    public AudioReceiverPipeline getReceiverAudio(){
+    public ReceiverPipeline getReceiverAudio(){
         return this.receiverAudio;
     }
     

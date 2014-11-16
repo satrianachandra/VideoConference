@@ -16,7 +16,7 @@ import org.gstreamer.PadDirection;
  *
  * @author chandra
  */
-class AudioRtpDecodeBin extends Bin{
+public class AudioRtpDecodeBin extends Bin{
     private final Element rtpDepay;
     private final Element decoder;
     private final Element convert;

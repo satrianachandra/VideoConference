@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package audio;
+package senderreceiverpipe;
 
+
+import audio.AudioRtpDecodeBin;
 import org.gstreamer.Bin;
 import org.gstreamer.Caps;
 import org.gstreamer.Element;
@@ -22,7 +24,7 @@ import video.VideoRtpDecodeBin;
  *
  * @author chandra
  */
-class AudioUnicastReceiver extends Bin{
+class UnicastReceiver extends Bin{
     /** Name of _the_ unicast bin */
     private static final String RECEIVER_UNICAST = "receiver_unicast";
     private static final String AUDIO_CAPS="application/x-rtp,media=(string)audio,clock-rate=(int)8000,encoding-name=(string)PCMA";
@@ -42,7 +44,7 @@ class AudioUnicastReceiver extends Bin{
     ////
     
     //public AudioUnicastReceiver(final Element connectSrcTo,Element myRtpBin ){
-    public AudioUnicastReceiver(final Element connectSrcTo,final Element connectSrcToV){
+    public UnicastReceiver(final Element connectSrcTo,final Element connectSrcToV){
         rtpasrc = ElementFactory.make("udpsrc", "rtpasrc");
         //udpSource.set("port", 0); // ask for a port
         
@@ -71,7 +73,7 @@ class AudioUnicastReceiver extends Bin{
             // create elements
             AudioRtpDecodeBin decoder = new AudioRtpDecodeBin(false);
             // add them
-            AudioUnicastReceiver.this.add(decoder);
+            UnicastReceiver.this.add(decoder);
             // sync them
             decoder.syncStateWithParent();
             // link them
@@ -89,7 +91,7 @@ class AudioUnicastReceiver extends Bin{
             * asked to do
             */
         
-            Util.doOrDie("unicastreceiver-connectsrcto", Element.linkMany(AudioUnicastReceiver.this, connectSrcTo));
+            Util.doOrDie("unicastreceiver-connectsrcto", Element.linkMany(UnicastReceiver.this, connectSrcTo));
             }
             }
        });
@@ -120,7 +122,7 @@ class AudioUnicastReceiver extends Bin{
             // create elements
             VideoRtpDecodeBin decoder = new VideoRtpDecodeBin(false);
             // add them
-            AudioUnicastReceiver.this.add(decoder);
+            UnicastReceiver.this.add(decoder);
             // sync them
             decoder.syncStateWithParent();
             // link them
@@ -138,7 +140,7 @@ class AudioUnicastReceiver extends Bin{
             * asked to do
             */
         
-            Element.linkMany(AudioUnicastReceiver.this, connectSrcToV);
+            Element.linkMany(UnicastReceiver.this, connectSrcToV);
             }
             }
         });

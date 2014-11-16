@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package video;
+package senderreceiverpipe;
 
+import audio.AudioRtpEncodeBin;
 import java.util.List;
 import org.gstreamer.Bin;
 import org.gstreamer.Element;
@@ -16,24 +17,59 @@ import org.gstreamer.State;
 import org.gstreamer.elements.Tee;
 import org.gstreamer.elements.good.RTPBin;
 import util.Util;
+import video.VideoRtpEncodeBin;
 
 /**
  *
  * @author chandra
  */
-public class VideoSenderBin extends Bin{
+public class SenderBin extends Bin{
     private Pad sink;
-    private VideoRtpEncodeBin encoder;
+    private AudioRtpEncodeBin encoder;
+    private Element rtpasink,rtcpasink,rtcpasrc;
+    private RTPBin rtpBin;
+    
+    private Pad sinkV;
+    private VideoRtpEncodeBin encoderV;
     //private Element udpSink;
     private Element rtpvsink,rtcpvsink,rtcpvsrc;
     
-    private RTPBin rtpBin;
     
-    public VideoSenderBin(String name, String ip, int port, boolean multicast){
+    
+    
+    public SenderBin(String name, String ip, int port, boolean multicast){
         super(name);   
-        encoder = new VideoRtpEncodeBin();
+        
+        encoder = new AudioRtpEncodeBin();
         encoder.syncStateWithParent();
         rtpBin = new RTPBin((String) null);
+        rtpBin.set("use-pipeline-clock", true);
+        
+        // asking this put the gstrtpbin plugin in sender mode
+        Pad rtpSink1 = rtpBin.getRequestPad("send_rtp_sink_1");
+
+        rtpasink = ElementFactory.make("udpsink", "rtpasink");
+        rtpasink.set("host", ip);
+        rtpasink.set("port", 5055);
+        if (multicast) {
+                // make OS automatically join multicast group
+                rtpasink.set("auto-multicast", true);
+        }
+        rtpasink.set("async", false);
+        rtpasink.set("sync",false);
+
+        rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
+        rtcpasink.set("host", ip);
+        rtcpasink.set("port", 5056);
+        rtcpasink.set("async", false);
+        rtcpasink.set("sync", false);
+        
+        rtcpasrc = ElementFactory.make("udpsrc", "rtcpasrc");
+        rtcpasrc.set("port", 5057);
+        
+        /////////////Video
+        encoderV = new VideoRtpEncodeBin();
+        encoderV.syncStateWithParent();
         // asking this put the gstrtpbin plugin in sender mode
         Pad rtpSink0 = rtpBin.getRequestPad("send_rtp_sink_0");
 
@@ -56,18 +92,48 @@ public class VideoSenderBin extends Bin{
         rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
         rtcpvsrc.set("port", 5052);
         
+        //////////////
         
         // ############## ADD THEM TO PIPELINE ####################
-        addMany(encoder, rtpBin, rtpvsink,rtcpvsink,rtcpvsrc);
-
+        addMany(encoder, rtpBin, rtpasink,rtcpasink,rtcpasrc, encoderV,rtpvsink,rtcpvsink,rtcpvsrc);
+        
         // ###################### LINK THEM ##########################
-        sink = new GhostPad("sink", encoder.getStaticPad("sink"));
+        sink = new GhostPad("sinkA", encoder.getStaticPad("sink"));
         sink.setActive(true);
         addPad(sink);
 
         Util.doOrDie(
                         "encoder-rtpBin",
-                        encoder.getStaticPad("src").link(rtpSink0)
+                        encoder.getStaticPad("src").link(rtpSink1)
+                                        .equals(PadLinkReturn.OK));
+        Util.doOrDie(
+                        "rtpbin-rtpbin_send_rtp_src_1",
+                        rtpBin.getStaticPad("send_rtp_src_1")
+                                        .link(rtpasink.getStaticPad("sink"))
+                                        .equals(PadLinkReturn.OK));
+        
+        
+        Util.doOrDie(
+                        "rtpbin_send_rtcp_src_1-rtcpasink",
+                        rtpBin.getRequestPad("send_rtcp_src_1")
+                                        .link(rtcpasink.getStaticPad("sink"))
+                                        .equals(PadLinkReturn.OK));
+        
+        Util.doOrDie(
+                        "rtcpasrc-rtpBin_rec_rtcp_sink_1",
+                        rtcpasrc.getStaticPad("src")
+                                        .link(rtpBin.getRequestPad("recv_rtcp_sink_1"))
+                                        .equals(PadLinkReturn.OK));
+        
+        
+        ///Video
+        sinkV = new GhostPad("sinkV", encoderV.getStaticPad("sink"));
+        sinkV.setActive(true);
+        addPad(sinkV);
+
+        Util.doOrDie(
+                        "encoderV-rtpBin",
+                        encoderV.getStaticPad("src").link(rtpSink0)
                                         .equals(PadLinkReturn.OK));
         Util.doOrDie(
                         "rtpbin-udpSink",
@@ -86,6 +152,9 @@ public class VideoSenderBin extends Bin{
                         rtcpvsrc.getStaticPad("src")
                                         .link(rtpBin.getRequestPad("recv_rtcp_sink_0"))
                                         .equals(PadLinkReturn.OK));
+        ///////
+        
+    
     }
     
     private Element getElementByNameStartingWith(List<Element> elts,
