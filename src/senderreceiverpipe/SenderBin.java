@@ -44,7 +44,8 @@ public class SenderBin extends Bin{
         encoder = new AudioRtpEncodeBin();
         encoder.syncStateWithParent();
         rtpBin = new RTPBin((String) null);
-        
+        rtpBin.set("latency", 1000);
+        rtpBin.set("use-pipeline-clock",true);
         
         // asking this put the gstrtpbin plugin in sender mode
         Pad rtpSink1 = rtpBin.getRequestPad("send_rtp_sink_1");

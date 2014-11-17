@@ -5,13 +5,17 @@
  */
 package senderreceiverpipe;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 import message.User;
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
 import org.gstreamer.PadLinkReturn;
 import org.gstreamer.Pipeline;
 import org.gstreamer.elements.BaseSrc;
-import util.Config;
+import org.gstreamer.swing.VideoComponent;
 import util.Util;
 
 /**
@@ -89,6 +93,7 @@ public class SenderPipeline extends Pipeline{
     public void streamTo(User myUser,User destUser) {
         // create the sender bin
         unicastSender = new SenderBin(SENDER_UNICAST, myUser,destUser, false);
+        
         // add it to this
         add(unicastSender);
         unicastSender.syncStateWithParent();
@@ -105,6 +110,29 @@ public class SenderPipeline extends Pipeline{
                         teeV.getRequestPad("src%d")
                                         .link(unicastSender.getStaticPad("sinkV"))
                                         .equals(PadLinkReturn.OK));
+        
+        //ShowMyself myVideo = new ShowMyself("my_video");
+        //add(myVideo);
+        //myVideo.syncStateWithParent();
+        VideoComponent videoComponent = new VideoComponent();
+        JFrame frame = new JFrame("VideoPlayer");
+        frame.getContentPane().add(videoComponent, BorderLayout.CENTER);
+        frame.setPreferredSize(new Dimension(640, 480));
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+                
+
+        Element myVideoSink = videoComponent.getElement();
+        add(myVideoSink);
+        myVideoSink.syncStateWithParent();
+        Util.doOrDie(
+                        "teeV-myVideo",
+                        teeV.getRequestPad("src%d")
+                                        .link(myVideoSink.getStaticPad("sink"))
+                                        .equals(PadLinkReturn.OK));
+        
+        
         
         play();
     }

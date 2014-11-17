@@ -46,7 +46,7 @@ public class Main {
        }).start();
        
        try {
-           Thread.sleep(5000);
+           Thread.sleep(2000);
        } catch (InterruptedException ex) {
            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
        }

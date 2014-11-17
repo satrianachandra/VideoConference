@@ -59,8 +59,8 @@ class UnicastReceiver extends Bin{
         System.out.println("port rtcpasrc "+  myUser.getrtcpasrcPort());
         
         rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
-        rtcpasink.set("host", senderUser.getIpAddress());
-        System.out.println("host sender "+ senderUser.getIpAddress());
+        rtcpasink.set("host", myUser.getIpAddress());
+        System.out.println("host sender "+ myUser.getIpAddress());
         rtcpasink.set("port", senderUser.getrtcpasrcPort());
         System.out.println("port rtcpasink"+ senderUser.getrtcpasrcPort());
         rtcpasink.set("async", false);
