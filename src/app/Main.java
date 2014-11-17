@@ -20,7 +20,7 @@ public class Main {
        
        //Format: User aUser = new User(null, rtpaPort, rtcpasrcPort, rtpvPort, rtcpvsrcPort)
        User destUser = new User("127.0.0.1", 5055, 5056, 5050, 5051);
-       User myUser = new User("127.0.0.1", 6055, 6056, 6050, 6051);
+       User myUser = new User("127.1.0.1", 7055, 7056, 7050, 7051);
        User senderUser = destUser;
        
        new Thread(new Runnable() {
@@ -46,7 +46,7 @@ public class Main {
        }).start();
        
        try {
-           Thread.sleep(1000);
+           Thread.sleep(5000);
        } catch (InterruptedException ex) {
            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
        }

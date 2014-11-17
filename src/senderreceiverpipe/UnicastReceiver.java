@@ -64,7 +64,7 @@ class UnicastReceiver extends Bin{
         rtcpasink.set("port", senderUser.getrtcpasrcPort());
         System.out.println("port rtcpasink"+ senderUser.getrtcpasrcPort());
         rtcpasink.set("async", false);
-        rtcpasink.set("sync", true);
+        rtcpasink.set("sync", false);
         
         
         rtpBin = ElementFactory.make("gstrtpbin", null);
@@ -120,7 +120,7 @@ class UnicastReceiver extends Bin{
         rtcpvsink.set("port", senderUser.getrtcpvsrcPort());
         System.out.println("port rtcpvsink "+senderUser.getrtcpvsrcPort());
         rtcpvsink.set("async", false);
-        rtcpvsink.set("sync", true);
+        rtcpvsink.set("sync", false);
         
         rtpBin.connect(new Element.PAD_ADDED() {
             @Override
