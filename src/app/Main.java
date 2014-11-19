@@ -19,6 +19,7 @@ public class Main {
    public static void main(String[]args) {
        
        //start the server
+       //just 1 server needed.
        SessionServer ss = new SessionServer(8080);
        new Thread(ss).start();
        

@@ -264,6 +264,10 @@ public class VideoConference {
     public GUI getGUI(){
         return gui;
     }
+    
+    public GUIConferenceRoom getGUICR(){
+        return guiCR;
+    }
 
     void endPrivateCall() {
         if (destinationUser!=null){

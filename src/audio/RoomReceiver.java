@@ -30,26 +30,16 @@ public class RoomReceiver extends Bin{
     private static final String VIDEO_CAPS="application/x-rtp, media=(string)video, clock-rate=(int)90000,encoding-name=(string)VP8-DRAFT-IETF-01,width=320, height=240";
     private Element rtpvsrc,rtcpvsrc,rtcpvsink;
     
-    private Element udpSource;
+    //private Element udpSource;
     private Element rtpBin;
     /** to mix room's participants streams */
     private Element adderAudio;
     private Pad src;
     
-    /**
-    * Create a new {@link RoomReceiver} and connect everything.
-    * 
-    * @param name
-    *            Gstreamer element name
-    * @param ip
-    *            multicast IP (group) to join
-    * @param port
-    *            UDP port
-    * @param ssrcToIgnore
-    *            my SSRC as a sender, will be connected to a fakesink and not
-    *            mixed with other participants
-    */
-    public RoomReceiver(String name, User myUser,User room,final long ssrcToIgnore) {
+    private int count = 0;
+    
+    public RoomReceiver(String name, User myUser,User room,final long ssrcToIgnore,
+            final Element video1,final Element video2,final Element video3,final Element video4) {
            super(name);
 
            //For Audio
@@ -119,7 +109,7 @@ public class RoomReceiver extends Bin{
            rtpvsrc.set("port", myUser.getrtpvPort()); // ask for a port
            System.out.println("port rtpvsrc "+myUser.getrtpvPort());
            rtpvsrc.getStaticPad("src").setCaps(Caps.fromString(VIDEO_CAPS));
-        
+           
            rtpBin.connect(new Element.PAD_ADDED() {
                 @Override
                 public synchronized void padAdded(Element element, Pad pad) {
@@ -156,10 +146,25 @@ public class RoomReceiver extends Bin{
                                                 pad.link(decoderVideo.getStaticPad("sink")).equals(
                                                                 PadLinkReturn.OK));
 
-                                Pad adderAudioPad = adderAudio.getRequestPad("sink%d");
-                                Util.doOrDie("decoder-adder",
-                                                decoderVideo.getStaticPad("src").link(adderAudioPad)
-                                                            .equals(PadLinkReturn.OK));
+                                Pad srcVideo = new GhostPad("srcVideo", decoderVideo.getStaticPad("src"));
+                                srcVideo.setActive(true);
+                                addPad(srcVideo);
+                                
+                                switch(count){
+                                    case 0: Util.doOrDie("decoder-srcVideo1",
+                                                Element.linkMany(RoomReceiver.this,video1));
+                                            break;
+                                    case 1:Util.doOrDie("decoder-srcVideo2",
+                                                Element.linkMany(RoomReceiver.this,video2));
+                                            break;
+                                    case 2:Util.doOrDie("decoder-srcVideo3",
+                                                Element.linkMany(RoomReceiver.this,video3));
+                                            break;
+                                    case 3:Util.doOrDie("decoder-srcVideo4",
+                                                Element.linkMany(RoomReceiver.this,video4));
+                                            break;
+                                }
+                                count++;
                             }
                         }
                 }
@@ -168,18 +173,26 @@ public class RoomReceiver extends Bin{
            
            //////////////////////////
 
-           // ############## ADD THEM TO PIPELINE ####################
-           addMany(udpSource, rtpBin, adderAudio);
-
+           //add them to the pipeline
+           addMany(rtcpasink,rtcpasrc,rtpasrc, rtpBin,adderAudio);
+           addMany(rtcpvsink,rtcpvsrc,rtpvsrc);
+           
            // Now they are in the pipeline, we can add the ghost pad
            src = new GhostPad("src", adderAudio.getStaticPad("src"));
            addPad(src);
 
            // ###################### LINK THEM ##########################
-           Pad pad = rtpBin.getRequestPad("recv_rtp_sink_1");
-           Util.doOrDie("udpSource-rtpbin", udpSource.getStaticPad("src")
-                           .link(pad).equals(PadLinkReturn.OK));
+           Pad padA = rtpBin.getRequestPad("recv_rtp_sink_1");
+           Util.doOrDie("rtpasrc-rtpbin_recv_rtp_sink_1", rtpasrc.getStaticPad("src")
+                           .link(padA).equals(PadLinkReturn.OK));
 
+            //video
+            //link them
+            Pad padV = rtpBin.getRequestPad("recv_rtp_sink_0");
+            Util.doOrDie("rtpvsrc_to_rtpBin_recv_rtp_sink_0", 
+                rtpvsrc.getStaticPad("src").link(padV).equals(PadLinkReturn.OK));
+        
+           
            // get this ready for playing
            pause();
    }
