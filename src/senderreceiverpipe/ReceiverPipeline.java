@@ -5,11 +5,8 @@
  */
 package senderreceiverpipe;
 
-import audio.AudioRoomReceiver;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
+import app.VideoConference;
+import audio.RoomReceiver;
 import message.User;
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
@@ -26,32 +23,46 @@ public class ReceiverPipeline extends Pipeline{
     UnicastReceiver unicastReceiver = null;
     private static final String RECEIVER_ROOM_PREFIX = "receiver_room";
     
-    private final Element adder = ElementFactory.make("liveadder", null);
-    private final Element sink = ElementFactory.make("autoaudiosink", null);
+    private final Element adderAudio = ElementFactory.make("liveadder", null);
+    private final Element sinkAudio = ElementFactory.make("autoaudiosink", null);
     
-    //private final Element sinkV = ElementFactory.make("autovideosink", null);
-    private final Element sinkV;
+    private Element sinkVideo=null;// = ElementFactory.make("autovideosink", null);
+    private VideoConference vc;
     
-    public ReceiverPipeline(){
+    public ReceiverPipeline(VideoConference vc){
         super("audio_receiver_pipeline");
+        this.vc = vc;
         
-        VideoComponent videoComponent = new VideoComponent();
-        JFrame frame = new JFrame("VideoPlayer");
-        frame.getContentPane().add(videoComponent, BorderLayout.CENTER);
-        frame.setPreferredSize(new Dimension(640, 480));
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-        sinkV = videoComponent.getElement();
         //add(sink);
         //link(sink);
         //sink.set("sync", true);
-        addMany(adder, sink);
-        linkMany(adder, sink);
-
+        
         //video
-        add(sinkV);
-        link(sinkV);
+        VideoComponent videoComponent = new VideoComponent();
+        sinkVideo = videoComponent.getElement();
+        
+        addMany(adderAudio, sinkAudio);
+        linkMany(adderAudio, sinkAudio);
+        
+        add(sinkVideo);
+        link(sinkVideo);
+        sinkVideo.syncStateWithParent();
+        vc.getGUI().showOtherVideo(videoComponent);
+        
+        
+        //show videos for the conference room, not sure if this can be actually done dynamically when the pipeline is already running?
+        VideoComponent videoComponentCR1 = new VideoComponent();
+        Element sinkVideoCR1 = videoComponentCR1.getElement();
+        
+        VideoComponent videoComponentCR2 = new VideoComponent();
+        Element sinkVideoCR2 = videoComponentCR1.getElement();
+        
+        VideoComponent videoComponentCR3 = new VideoComponent();
+        Element sinkVideoCR3 = videoComponentCR1.getElement();
+        
+        VideoComponent videoComponentCR4 = new VideoComponent();
+        Element sinkVideoCR4 = videoComponentCR1.getElement();
+        
         
         
         play();
@@ -59,10 +70,10 @@ public class ReceiverPipeline extends Pipeline{
     }
     
     //public int receiveFromUnicast(Element myRtpBin) {
-    public int receiveFromUnicast(User myUser,User senderUser) {
+    public int receiveFromUnicast(User myUser, User senderUser) {
         // create the receiver bin
         //unicastReceiver = new AudioUnicastReceiver(adder,myRtpBin);
-        unicastReceiver = new UnicastReceiver(myUser,senderUser, adder,sinkV);
+        unicastReceiver = new UnicastReceiver(myUser, senderUser, adderAudio,sinkVideo);
         // add it to this
         add(unicastReceiver);
         unicastReceiver.syncStateWithParent();
@@ -77,21 +88,28 @@ public class ReceiverPipeline extends Pipeline{
     }
 
 
-    public void receiveFromRoom(int roomId, long ssrcToIgnore) {
+    public void receiveFromRoom(long ssrcToIgnore, User myUser) {
         // create the receiver bin
-        AudioRoomReceiver room = new AudioRoomReceiver(RECEIVER_ROOM_PREFIX + roomId,
-        Config.BASE_IP + roomId, Config.RTP_MULTICAST_PORT,
-        ssrcToIgnore);
+        int roomId = 1;
+        User aRoom = new User("A Room", Config.ROOM_IP, Config.rtpaPortRoom, Config.rtcpasrcPortRoom,
+                Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
+        
+        RoomReceiver room = new RoomReceiver(RECEIVER_ROOM_PREFIX + roomId,
+        myUser, aRoom, ssrcToIgnore);
         // add it to this
         add(room);
         room.syncStateWithParent();
         // connect its output to the adder
-        //room.link(adder);
+        room.link(adderAudio);
     }
     
+    
+    
     public void stopRoomReceiving(int roomId) {
-        ((AudioRoomReceiver) getElementByName(RECEIVER_ROOM_PREFIX + roomId))
+        ((RoomReceiver) getElementByName(RECEIVER_ROOM_PREFIX + roomId))
         .getOut();
     }
 
+    
+    
 }

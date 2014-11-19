@@ -5,28 +5,41 @@
  */
 package message;
 
+import java.io.Serializable;
+import util.Config;
+
 /**
  *
  * @author chandra
  */
-public class User {
+public class User implements Serializable {
     
     private int rtpaPort,rtcpasrcPort;
     private int rtpvPort,rtcpvsrcPort;
     
     
     private String ipAddress;
+    private String userName;
     
-    
-    public User(String ipAddress,int rtpaPort, int rtcpasrcPort,int rtpvPort,int rtcpvsrcPort){
+    public User(String userName, String ipAddress,int rtpaPort, int rtcpasrcPort,int rtpvPort,int rtcpvsrcPort){
+        this.userName = userName;
         this.ipAddress = ipAddress;
+        
         this.rtpaPort = rtpaPort;
-        //this.rtcpasinkPort = rtcpasinkPort;
         this.rtcpasrcPort = rtcpasrcPort;
         this.rtpvPort = rtpvPort;
-        //this.rtcpvsinkPort = rtcpvsinkPort;
         this.rtcpvsrcPort = rtcpvsrcPort;
         
+    }
+    
+    public User(String userName,String ipAddress){
+        this.userName = userName;
+        this.ipAddress = ipAddress;
+        
+        this.rtpaPort = Config.rtpaPort;
+        this.rtpvPort = Config.rtpvPort;
+        this.rtcpasrcPort = Config.rtcpasrcPort;
+        this.rtcpvsrcPort = Config.rtcpvsrcPort;
     }
     
     public int getrtpaPort(){
@@ -50,4 +63,7 @@ public class User {
         return ipAddress;
     }
     
+    public String getUserName(){
+        return userName;
+    }
 }

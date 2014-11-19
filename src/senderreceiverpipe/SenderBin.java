@@ -17,6 +17,7 @@ import org.gstreamer.PadLinkReturn;
 import org.gstreamer.State;
 import org.gstreamer.elements.Tee;
 import org.gstreamer.elements.good.RTPBin;
+import util.Config;
 import util.Util;
 import video.VideoRtpEncodeBin;
 
@@ -102,6 +103,7 @@ public class SenderBin extends Bin{
         
         rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
         rtcpvsrc.set("port", myUser.getrtcpvsrcPort());
+        System.out.println("port rtcpvsrc "+myUser.getrtcpvsrcPort());
         if (multicast) {
                 // make OS automatically join multicast group
                 rtpvsink.set("auto-multicast", true);

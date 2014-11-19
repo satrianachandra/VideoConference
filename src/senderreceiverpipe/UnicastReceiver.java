@@ -16,6 +16,7 @@ import org.gstreamer.GhostPad;
 import org.gstreamer.Pad;
 import org.gstreamer.PadLinkReturn;
 import org.gstreamer.State;
+import util.Config;
 import util.Util;
 
 import video.VideoRtpDecodeBin;
@@ -59,8 +60,8 @@ class UnicastReceiver extends Bin{
         System.out.println("port rtcpasrc "+  myUser.getrtcpasrcPort());
         
         rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
-        rtcpasink.set("host", myUser.getIpAddress());
-        System.out.println("host sender "+ myUser.getIpAddress());
+        rtcpasink.set("host", senderUser.getIpAddress());
+        System.out.println("host rtcpasink "+ senderUser.getIpAddress());
         rtcpasink.set("port", senderUser.getrtcpasrcPort());
         System.out.println("port rtcpasink"+ senderUser.getrtcpasrcPort());
         rtcpasink.set("async", false);
@@ -114,9 +115,11 @@ class UnicastReceiver extends Bin{
         
         rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
         rtcpvsrc.set("port", myUser.getrtcpvsrcPort());
+        System.out.println("rtcpvsrc port: "+myUser.getrtcpvsrcPort());
         
         rtcpvsink = ElementFactory.make("udpsink", "rtcpvsink");
         rtcpvsink.set("host", senderUser.getIpAddress());
+        System.out.println("host rtcpvsink "+senderUser.getIpAddress());
         rtcpvsink.set("port", senderUser.getrtcpvsrcPort());
         System.out.println("port rtcpvsink "+senderUser.getrtcpvsrcPort());
         rtcpvsink.set("async", false);

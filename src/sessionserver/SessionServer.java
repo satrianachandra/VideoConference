@@ -8,6 +8,10 @@ package sessionserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import message.User;
+import util.Config;
 
 /**
  *
@@ -20,8 +24,13 @@ public class SessionServer implements Runnable{
     private int serverPort = 8080;
     private Thread runningThread= null;
     
+    private List<User>usersList;
+    private List<ClientThread>clientThreadList;
+    
     public SessionServer(int port){
         this.serverPort = port;
+        usersList = new ArrayList<>();
+        clientThreadList = new ArrayList<>();
     }
     
     @Override
@@ -48,15 +57,31 @@ public class SessionServer implements Runnable{
                 throw new RuntimeException(
                     "Error accepting client connection", e);
             }
-            new Thread(new ClientThread(clientSocket)).start();
+            ClientThread aClientThread = new ClientThread(clientSocket,SessionServer.this);
+            clientThreadList.add(aClientThread);
+            new Thread(aClientThread).start();
         
         }
     }
     
+    public List<User> getUsersList(){
+        return usersList;
+    }
+    
     public static void main(String[]args){
-        SessionServer ss = new SessionServer(8080);
+        SessionServer ss = new SessionServer(Config.SERVER_PORT);
         new Thread(ss).start();
         
+    }
+
+    public void updateListUsersInLocals() {
+        for(int i=0;i<clientThreadList.size();i++){
+            clientThreadList.get(i).pushUpdatedUsersList();
+        }
+    }
+    
+    public List<ClientThread> getClientThreadList(){
+        return clientThreadList;
     }
     
 }

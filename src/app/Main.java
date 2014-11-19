@@ -7,9 +7,9 @@ package app;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import message.User;
-import org.gstreamer.Element;
-import org.gstreamer.ElementFactory;
+import sessionserver.SessionServer;
 
 /**
  *
@@ -18,62 +18,98 @@ import org.gstreamer.ElementFactory;
 public class Main {
    public static void main(String[]args) {
        
-       //Format: User aUser = new User(null, rtpaPort, rtcpasrcPort, rtpvPort, rtcpvsrcPort)
-       User destUser = new User("127.0.0.1", 5055, 5056, 5050, 5051);
-       User myUser = new User("127.1.0.1", 7055, 7056, 7050, 7051);
-       User senderUser = destUser;
-       
-       new Thread(new Runnable() {
-
-           @Override
-           public void run() {
-               final VideoConference vc2= new VideoConference();
-       
-               //Testing
-               System.out.println("Receiving");
-                
-               
-               int portAudio = vc2.getReceiver().receiveFromUnicast(senderUser,myUser);
-                //System.out.println("receiver portVideo"+portVideo);
-               System.out.println("receiver portAudio"+portAudio);
-               try {
-                   Thread.sleep(1000*60*10);
-               } catch (InterruptedException ex) {
-                   Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-               }
-
-           }
-       }).start();
+       //start the server
+       SessionServer ss = new SessionServer(8080);
+       new Thread(ss).start();
        
        try {
-           Thread.sleep(2000);
-       } catch (InterruptedException ex) {
-           Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-       }
+                Thread.sleep(2000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       //start the client
+       final VideoConference vc= new VideoConference();
+       boolean testing = false;
        
-       new Thread(new Runnable() {
+       if (testing){
+       
+            //Format: User aUser = new User(null, rtpaPort, rtcpasrcPort, rtpvPort, rtcpvsrcPort)
+            User user2 = new User("user2","127.0.0.1", 4050, 4051,
+                    4055,4056);
+            
+            User user1 = new User("user2","127.2.0.1", 6050, 6051,
+                    6055,6056);
 
-           @Override
-           public void run() {
-               System.out.println("Welcome");
-               final VideoConference vc= new VideoConference();
-       
-                //Testing
-                System.out.println("Send");
-                //vc.getSenderVideo().streamTo("127.0.0.1", 5050);
-                vc.getSender().streamTo(myUser, destUser);
-                //vc.getSender().streamTo("127.0.0.1", 5055);
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    
+
+                    //Testing
+                    System.out.println("Receiving");
+
+                    //user2 receives from user1
+                    int portAudio = vc.getReceiverPipeline().receiveFromUnicast(user2,user1);
+                     //System.out.println("receiver portVideo"+portVideo);
+                    System.out.println("receiver portAudio"+portAudio);
+                    try {
+                        Thread.sleep(1000*60*10);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                }
+            }).start();
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    System.out.println("Welcome");
+
+                     //Testing
+                     System.out.println("Send");
+                     //vc.getSenderVideo().streamTo("127.0.0.1", 5050);
+                     //user1 stream to user2
+                     vc.getSenderPipeline().streamTo(user1,user2);
+                     //vc.getSender().streamTo("127.0.0.1", 5055);
+
+                     try {
+                        Thread.sleep(1000*60*10);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }).start();
+
+       }else{
+           
+           SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                final GUI gui = new GUI(vc);
+                gui.setVisible(true);
+                vc.setGUI(gui);
+                vc.init();
                 
-                try {
-                   Thread.sleep(1000*60*10);
-               } catch (InterruptedException ex) {
-                   Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-               }
-           }
-       }).start();
+                final GUIConferenceRoom guiCR = new GUIConferenceRoom(vc);
+                vc.setGUICR(guiCR);
+                guiCR.setVisible(false);
+                
+                
+                }
+            });
        
-       
-       
+           
+        
+           
+       }
        
    }
 }

@@ -8,8 +8,17 @@ package sessionserver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import message.Message;
+import message.MessageType;
+import message.User;
+import util.Config;
+
 
 /**
  *
@@ -17,41 +26,117 @@ import java.net.Socket;
  */
 public class ClientThread implements Runnable{
 
+    private SessionServer server;
     private Socket clientSocket = null;
+    private User myUser = null;
     private boolean stop = false;
     
-    private BufferedReader in;
-    private PrintStream out;
     
-    public ClientThread(Socket clientSocket){
+    //private BufferedReader in;
+    //private PrintStream out;
+    private ObjectInputStream inputStream;	
+    private ObjectOutputStream outputStream;
+    
+    
+    public ClientThread(Socket clientSocket, SessionServer server){
         this.clientSocket = clientSocket;
-        
+        this.server = server;
         try {
-            in = new BufferedReader(new InputStreamReader(
-            clientSocket.getInputStream()));
-            out = new PrintStream(clientSocket.getOutputStream());
+            outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            outputStream.flush();
+            inputStream = new ObjectInputStream(clientSocket.getInputStream());
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     
+    public User getMyUser(){
+        return myUser;
+    }
+    
     @Override
     public void run() {
-        String message = null;
+        Message message = null;
         while (!stop){
             try {
-                message = in.readLine();
+                message = (Message)inputStream.readObject();
+                System.out.println("message receive, type "+message.getType());
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
             }
             if (message == null) {
-                //the client disconnects
+                //the client disconnects, delete him/her from the list
+                if (myUser!=null){
+                    server.getUsersList().remove(myUser);
+                    server.getClientThreadList().remove(this);
+                    server.updateListUsersInLocals();
+                }
                 stop = true;
-            } 
-            
+            }else{
+                processMessage(message);
+            }
             
         }
-        
+        System.out.println("client thread closed");
+    }
+
+    private void processMessage(Message message) {
+        if (message.getType() == MessageType.REGISTERING){
+            String userName = (String)message.getContent();
+            System.out.println("registering username: "+userName);
+            String userIP = clientSocket.getInetAddress().toString();
+            this.myUser = new User(userName,userIP, Config.rtpaPort, Config.rtcpasrcPort, Config.rtpvPort, Config.rtcpvsrcPort);
+            server.getUsersList().add(myUser);
+            
+            send(new Message(MessageType.REGISTERED));
+            server.updateListUsersInLocals();
+            
+        }else if (message.getType()==MessageType.FETCHUSERS){
+           pushUpdatedUsersList();
+        }else if (message.getType()==MessageType.CALL_REQUEST){
+            User destUser = (User)message.getContent();
+            //write the request to the destUser's socket
+            ClientThread aClientThread = getClientThreadBasedOnUser(destUser);
+            aClientThread.send(new Message(MessageType.CALL_REQUEST, destUser));
+            
+        }else if (message.getType() == MessageType.CALL_ACCEPTED){
+            User originator = (User)message.getContent();
+            ClientThread originatorsClientThread = getClientThreadBasedOnUser(originator);
+            originatorsClientThread.send(new Message(MessageType.CALL_ACCEPTED, myUser));
+        }else if (message.getType()==MessageType.BYE){
+            User theOtherParty = (User)message.getContent();
+            ClientThread theOtherPartyThread = getClientThreadBasedOnUser(theOtherParty);
+            theOtherPartyThread.send(new Message(MessageType.BYE));
+            
+        }
+               
+    }
+    
+    public void pushUpdatedUsersList(){
+        System.out.println("pushing updated users list");
+        System.out.println(server.getUsersList().get(0).getUserName());
+        send(new Message(MessageType.FETCHUSERS, server.getUsersList()));
+    }
+
+    public void send(Message message){
+        try {
+            outputStream.writeObject(message);
+        } catch (IOException ex) {
+            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private ClientThread getClientThreadBasedOnUser(User aUser){
+        for (int i=0;i<server.getClientThreadList().size();i++){
+            ClientThread aClientThread = server.getClientThreadList().get(i);
+            if (aClientThread.getMyUser().getIpAddress().equalsIgnoreCase(aUser.getIpAddress()) ){
+                return aClientThread;
+            }    
+        }
+        return null;
     }
     
 }

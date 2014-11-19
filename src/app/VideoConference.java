@@ -5,9 +5,14 @@
  */
 package app;
 
+import java.util.ArrayList;
+import java.util.List;
 import senderreceiverpipe.ReceiverPipeline;
 import senderreceiverpipe.SenderPipeline;
 import message.Call;
+import message.Message;
+import message.MessageType;
+import message.User;
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
 import org.gstreamer.Gst;
@@ -19,42 +24,34 @@ import org.gstreamer.Gst;
  */
 public class VideoConference {
 
-    private Element myRtpBin;
-//    private Element rtpBin2;
-    
-    /** own username */
-    private String username;
-    /** name of the guy we're currently calling */
-    private String friend;
     
     private GUI gui;
+    private GUIConferenceRoom guiCR;
     
-    /** TCP connection to server */
-    //private ControlChannel control;
+    private String myUserName;
+    private User myUser = null;
+    private User destinationUser = null;
+    
     
     /** GStreamer pipeline to receive from rooms and contact */
-    private ReceiverPipeline receiver;
+    private ReceiverPipeline receiverPipeline;
     /** GStreamer pipeline to send to rooms and contact */
-    private SenderPipeline sender;
+    private SenderPipeline senderPipeline;
     
+    private ServerChannel serverChannel;
+    
+    private List<User>usersListLocal;
     
     public VideoConference(){
-        
-        //communication with server
-        
-        
+       
         //GStreamer inits
         Gst.init("AudioVideoConferencing", new String[] { "--gst-debug-level=2",
                         "--gst-debug-no-color" });
         
-        myRtpBin = ElementFactory.make("gstrtpbin", null);
-       // rtpBin2 = ElementFactory.make("gstrtpbin", null);
         
-       // receiverVideo = new VideoReceiverPipeline();
-       // senderVideo = new VideoSenderPipeline();
+        usersListLocal = new ArrayList<>();
         
-        receiver = new ReceiverPipeline();
-        sender = new SenderPipeline();
+        
         
     }
     
@@ -103,8 +100,8 @@ public class VideoConference {
         
         //senderAudio.stopStreamingToRoom(roomId);
         //receiverAudio.stopRoomReceiving(roomId);
-        sender.stopStreamingToRoom(roomId);
-        receiver.stopRoomReceiving(roomId);
+        senderPipeline.stopStreamingToRoom(roomId);
+        receiverPipeline.stopRoomReceiving(roomId);
     }
     
     public void askToCall(String contact) {
@@ -120,7 +117,7 @@ public class VideoConference {
         //int portAudio = this.receiverAudio.receiveFromUnicast();
         //int portAudio = this.receiverAudio.receiveFromUnicast(myRtpBin);
         
-        this.friend = contact;
+       // this.friend = contact;
     }
 
     public void call(String ipReceiver, int port) {
@@ -149,9 +146,9 @@ public class VideoConference {
            // stop streaming to friend
            //senderVideo.stopStreamingToUnicast();
 
-           receiver.stopUnicastReceiving();
+           receiverPipeline.stopUnicastReceiving();
            // stop streaming to friend
-           sender.stopStreamingToUnicast();
+           senderPipeline.stopStreamingToUnicast();
            
            //gui.getCallBtn().setVisible(true);
            //gui.getHangUpBtn().setVisible(false);
@@ -167,7 +164,7 @@ public class VideoConference {
                 
                 //portAudio = receiverAudio.receiveFromUnicast();
                // portAudio = receiverAudio.receiveFromUnicast();
-                this.friend = call.getSender();
+               // this.friend = call.getSender();
                 
                 //gui.getCallBtn().setVisible(false);
                 //gui.getHangUpBtn().setVisible(true);
@@ -178,12 +175,127 @@ public class VideoConference {
     }
 
     
-    public SenderPipeline getSender(){
-        return this.sender;
+    public SenderPipeline getSenderPipeline(){
+        return this.senderPipeline;
     }
     
-    public ReceiverPipeline getReceiver(){
-        return this.receiver;
+    public ReceiverPipeline getReceiverPipeline(){
+        return this.receiverPipeline;
+    }
+    
+    public void setGUI(GUI gui){
+        this.gui = gui;
+    }
+
+    public void setGUICR(GUIConferenceRoom guiCR){
+        this.guiCR = guiCR;
+    }
+    
+    public void signin(String userName) {
+        myUser = new User(userName, "");
+        serverChannel.send(new Message(MessageType.REGISTERING, userName));
+    }
+
+    void registered() {
+        //hide the welcome gui
+        System.out.println("User registerd");
+        gui.getWelcomePanel().setVisible(false);
+        //show the communication gui
+        gui.getMainPanel().setVisible(true);
+        
+        //fetch userslist
+        //serverChannel.send(new Message(MessageType.FETCHUSERS));
+        
+    }
+
+    void updateUsersList(List<User> list) {
+        usersListLocal = list;
+         if (usersListLocal!=null){
+            String[]usersArray = new String[usersListLocal.size()];
+            for (int i=0;i<usersArray.length;i++){
+                usersArray[i]=usersListLocal.get(i).getUserName();
+                System.out.println(usersArray[i]);
+            }
+            gui.getUsersListList().setModel(new javax.swing.DefaultComboBoxModel(usersArray));
+        }
+        
+    }
+    
+    public void init(){
+        //communication with server
+        serverChannel = new ServerChannel(this);
+        new Thread(serverChannel).start();
+        
+        receiverPipeline = new ReceiverPipeline(this);
+        senderPipeline = new SenderPipeline(this);
+        
+    }
+
+    void privateCall(int index) {
+        if (destinationUser == null){
+            User theUser = usersListLocal.get(index);
+            destinationUser = theUser;
+            
+            //ask server to tell the receiver to prepare
+            serverChannel.send(new Message(MessageType.CALL_REQUEST, theUser) );
+
+            //get ready for listening
+            getReceiverPipeline().receiveFromUnicast(myUser, theUser);
+        }
+    }
+
+    void acceptCall(User senderUser) {
+        //get ready for listening from the originator
+        getReceiverPipeline().receiveFromUnicast(myUser, senderUser);
+        
+        //tell the sender that his/her call is accepted
+        serverChannel.send(new Message(MessageType.CALL_ACCEPTED, senderUser));
+        
+        //start sending to the originator
+        senderPipeline.streamTo(myUser, senderUser);
+        
+    }
+
+    void callAccepted(User destUser) {
+        //my call is accepted, start sending to that destUser
+        senderPipeline.streamTo(myUser, destUser);  
+    }
+    
+    public GUI getGUI(){
+        return gui;
+    }
+
+    void endPrivateCall() {
+        if (destinationUser!=null){
+            serverChannel.send(new Message(MessageType.BYE, destinationUser));
+            
+            
+            //stop sending
+            senderPipeline.stopStreamingToUnicast();
+            
+            //stop receiviing
+            receiverPipeline.stopUnicastReceiving();
+        }
+        destinationUser=null;
+    }
+
+    void joinRoom() {
+        serverChannel.send(new Message(MessageType.JOIN_ROOM));
+        
+        //start receiving from room
+        long mySSRC = senderPipeline.streamToRoom(myUser);
+        receiverPipeline.receiveFromRoom(mySSRC, myUser);
+        
+    }
+
+    void showGUIConferenceRoom() {
+        guiCR.setVisible(true);
+        gui.setVisible(false);
+    }
+
+    void showMainGUI() {
+        guiCR.setVisible(false);
+        gui.setVisible(true);
     }
     
 }

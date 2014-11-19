@@ -5,6 +5,7 @@
  */
 package senderreceiverpipe;
 
+import app.VideoConference;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JFrame;
@@ -16,6 +17,7 @@ import org.gstreamer.PadLinkReturn;
 import org.gstreamer.Pipeline;
 import org.gstreamer.elements.BaseSrc;
 import org.gstreamer.swing.VideoComponent;
+import util.Config;
 import util.Util;
 
 /**
@@ -41,10 +43,16 @@ public class SenderPipeline extends Pipeline{
     private final Element teeV = ElementFactory.make("tee", null);
     // THE SenderBin to talk with somebody
     
+    private VideoConference vc;
+    
     SenderBin unicastSender = null;
     
-    public SenderPipeline(){
+    public SenderPipeline(VideoConference vc){
+        
         super("audio_sender_pipeline");
+        
+        this.vc = vc;
+        
         // live source => drop stream when in paused state
         src.setLive(true);
         
@@ -52,16 +60,17 @@ public class SenderPipeline extends Pipeline{
         
         Util.doOrDie("src-tee", linkMany(src, tee));
         
-        
         //Video
         srcV.set("device", "/dev/video0");
         srcV.setLive(true);
         addMany(srcV,teeV);
         Util.doOrDie("src-tee", linkMany(srcV, teeV));
+            
         
-        //
-        
-
+    }
+    
+    public Element getTeeV(){
+        return teeV;
     }
     
     public long streamTo(int roomId) {
@@ -83,6 +92,26 @@ public class SenderPipeline extends Pipeline{
         return room.getSSRC();
                 */
         return -1;
+    }
+    
+    public long streamToRoom(User myUser){
+        int roomId = 1;
+        User aRoom = new User("A Room", Config.ROOM_IP, Config.rtpaPortRoom, Config.rtcpasrcPortRoom,
+                Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
+        SenderBin room = new SenderBin(SENDER_ROOM_PREFIX + roomId,
+                        myUser,aRoom, true);
+        // add it to this
+        add(room);
+        room.syncStateWithParent();
+
+        // connect its input to the tee
+        Util.doOrDie("tee-roomSender",
+                        tee.getRequestPad("src%d").link(room.getStaticPad("sink"))
+                                        .equals(PadLinkReturn.OK));
+
+        play();
+
+        return room.getSSRC();
     }
     
     public void stopStreamingToRoom(int roomId) {
@@ -111,18 +140,9 @@ public class SenderPipeline extends Pipeline{
                                         .link(unicastSender.getStaticPad("sinkV"))
                                         .equals(PadLinkReturn.OK));
         
-        //ShowMyself myVideo = new ShowMyself("my_video");
-        //add(myVideo);
-        //myVideo.syncStateWithParent();
+        //show my video
+        
         VideoComponent videoComponent = new VideoComponent();
-        JFrame frame = new JFrame("VideoPlayer");
-        frame.getContentPane().add(videoComponent, BorderLayout.CENTER);
-        frame.setPreferredSize(new Dimension(640, 480));
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-                
-
         Element myVideoSink = videoComponent.getElement();
         add(myVideoSink);
         myVideoSink.syncStateWithParent();
@@ -131,6 +151,9 @@ public class SenderPipeline extends Pipeline{
                         teeV.getRequestPad("src%d")
                                         .link(myVideoSink.getStaticPad("sink"))
                                         .equals(PadLinkReturn.OK));
+        
+        
+        vc.getGUI().showMyVideo(videoComponent);
         
         
         
