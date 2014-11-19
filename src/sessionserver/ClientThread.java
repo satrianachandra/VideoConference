@@ -6,6 +6,7 @@
 package sessionserver;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -62,6 +63,14 @@ public class ClientThread implements Runnable{
             try {
                 message = (Message)inputStream.readObject();
                 System.out.println("message receive, type "+message.getType());
+            }catch (EOFException ex){
+                //the client disconnects, delete him/her from the list
+                if (myUser!=null){
+                    server.getUsersList().remove(myUser);
+                    server.getClientThreadList().remove(this);
+                    server.updateListUsersInLocals();
+                }
+                stop = true;
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException ex) {
@@ -87,12 +96,16 @@ public class ClientThread implements Runnable{
         if (message.getType() == MessageType.REGISTERING){
             String userName = (String)message.getContent();
             System.out.println("registering username: "+userName);
-            String userIP = clientSocket.getInetAddress().toString();
+            String userIP = clientSocket.getInetAddress().getHostAddress();
+            System.out.println(userIP);
             this.myUser = new User(userName,userIP, Config.rtpaPort, Config.rtcpasrcPort, Config.rtpvPort, Config.rtcpvsrcPort);
-            server.getUsersList().add(myUser);
+            if (!server.getUsersList().contains(this.myUser)){
+                server.getUsersList().add(myUser);
+                
+                send(new Message(MessageType.REGISTERED));
+                server.updateListUsersInLocals();
+            }
             
-            send(new Message(MessageType.REGISTERED));
-            server.updateListUsersInLocals();
             
         }else if (message.getType()==MessageType.FETCHUSERS){
            pushUpdatedUsersList();
@@ -116,13 +129,16 @@ public class ClientThread implements Runnable{
     }
     
     public void pushUpdatedUsersList(){
-        System.out.println("pushing updated users list");
-        System.out.println(server.getUsersList().get(0).getUserName());
+        System.out.println("pushing updated users list---------");
+        for (int i=0;i<server.getUsersList().size();i++){
+            System.out.println("user-"+i+":"+server.getUsersList().get(i).getUserName());
+        }
         send(new Message(MessageType.FETCHUSERS, server.getUsersList()));
     }
 
     public void send(Message message){
         try {
+            outputStream.reset();
             outputStream.writeObject(message);
         } catch (IOException ex) {
             Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);

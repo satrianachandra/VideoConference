@@ -58,8 +58,11 @@ public class SessionServer implements Runnable{
                     "Error accepting client connection", e);
             }
             ClientThread aClientThread = new ClientThread(clientSocket,SessionServer.this);
-            clientThreadList.add(aClientThread);
-            new Thread(aClientThread).start();
+            if (!clientThreadList.contains(aClientThread)){
+                clientThreadList.add(aClientThread);
+                new Thread(aClientThread).start();
+            }
+            
         
         }
     }

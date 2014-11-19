@@ -6,6 +6,7 @@
 package app;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -66,7 +67,9 @@ public class ServerChannel implements Runnable {
         while (!stop){
             try {
                 message = (Message)inputStream.readObject();
-                System.out.println("client received: "+message);
+            }catch(EOFException ex){
+                stop = true;
+                Logger.getLogger(ServerChannel.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
                 Logger.getLogger(ServerChannel.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
@@ -87,7 +90,13 @@ public class ServerChannel implements Runnable {
         if (message.getType()==MessageType.REGISTERED){
             vc.registered();
         }else if (message.getType()==MessageType.FETCHUSERS){
-            vc.updateUsersList((List<User>)message.getContent());
+            List<User> users;
+            users = (List<User>)message.getContent();
+            for (User user: users){
+                System.out.println(user.getUserName());
+            }
+            System.out.println("---------");
+            vc.updateUsersList(users);
         }else if (message.getType()==MessageType.CALL_REQUEST){
             User senderUser = (User)message.getContent();
             vc.acceptCall(senderUser);
@@ -101,6 +110,7 @@ public class ServerChannel implements Runnable {
     
     public void send(Message message) {
         try {
+            outputStream.reset();
             outputStream.writeObject(message);
         } catch (IOException ex) {
             Logger.getLogger(ServerChannel.class.getName()).log(Level.SEVERE, null, ex);

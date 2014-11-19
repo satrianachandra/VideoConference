@@ -46,6 +46,7 @@ public class GUI extends javax.swing.JFrame {
         panelOtherVideo = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
+        buttonRefreshList = new javax.swing.JButton();
         panelWelcome = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         textFieldUserName = new javax.swing.JTextField();
@@ -100,6 +101,13 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
+        buttonRefreshList.setText("refresh");
+        buttonRefreshList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonRefreshListActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelMainLayout = new javax.swing.GroupLayout(panelMain);
         panelMain.setLayout(panelMainLayout);
         panelMainLayout.setHorizontalGroup(
@@ -111,10 +119,11 @@ public class GUI extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addGroup(panelMainLayout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(28, 28, 28)
+                        .addGap(27, 27, 27)
                         .addGroup(panelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(buttonHangUp)
                             .addComponent(buttonCall)
-                            .addComponent(buttonHangUp))))
+                            .addComponent(buttonRefreshList))))
                 .addGap(26, 26, 26)
                 .addGroup(panelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelMainLayout.createSequentialGroup()
@@ -134,16 +143,18 @@ public class GUI extends javax.swing.JFrame {
                     .addGroup(panelMainLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel2)
-                        .addGroup(panelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(18, 18, 18)
+                        .addGroup(panelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(panelMainLayout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(34, 34, 34))
                             .addGroup(panelMainLayout.createSequentialGroup()
-                                .addGap(38, 38, 38)
+                                .addComponent(buttonRefreshList)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(buttonCall)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(buttonHangUp)))
-                        .addGap(34, 34, 34)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(buttonHangUp)
+                                .addGap(90, 90, 90)))
                         .addComponent(panelMyVideo, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(panelMainLayout.createSequentialGroup()
@@ -234,9 +245,14 @@ public class GUI extends javax.swing.JFrame {
         myVC.showGUIConferenceRoom();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void buttonRefreshListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRefreshListActionPerformed
+        myVC.refreshUsersList();
+    }//GEN-LAST:event_buttonRefreshListActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonCall;
     private javax.swing.JButton buttonHangUp;
+    private javax.swing.JButton buttonRefreshList;
     private javax.swing.JButton buttonSignIn;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;

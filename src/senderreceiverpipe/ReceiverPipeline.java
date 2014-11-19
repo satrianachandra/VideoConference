@@ -6,7 +6,6 @@
 package senderreceiverpipe;
 
 import app.VideoConference;
-import audio.RoomReceiver;
 import message.User;
 import org.gstreamer.Element;
 import org.gstreamer.ElementFactory;
@@ -45,6 +44,7 @@ public class ReceiverPipeline extends Pipeline{
         //video
         VideoComponent videoComponent = new VideoComponent();
         sinkVideo = videoComponent.getElement();
+        sinkVideo.setName("vcunicast");
         
         addMany(adderAudio, sinkAudio);
         linkMany(adderAudio, sinkAudio);
@@ -58,8 +58,10 @@ public class ReceiverPipeline extends Pipeline{
         //show videos for the conference room, 
         //not sure if this can be actually done dynamically when the pipeline is already running?
         //for now just do it like this:
+        
         VideoComponent videoComponentCR1 = new VideoComponent();
         sinkVideoCR1 = videoComponentCR1.getElement();
+        sinkVideoCR1.setName("cr1");
         add(sinkVideoCR1);
         link(sinkVideoCR1);
         sinkVideoCR1.syncStateWithParent();
@@ -67,7 +69,8 @@ public class ReceiverPipeline extends Pipeline{
         
         
         VideoComponent videoComponentCR2 = new VideoComponent();
-        sinkVideoCR2 = videoComponentCR1.getElement();
+        sinkVideoCR2 = videoComponentCR2.getElement();
+        sinkVideoCR2.setName("cr2");
         add(sinkVideoCR2);
         link(sinkVideoCR2);
         sinkVideoCR2.syncStateWithParent();
@@ -75,19 +78,21 @@ public class ReceiverPipeline extends Pipeline{
         
         
         VideoComponent videoComponentCR3 = new VideoComponent();
-        sinkVideoCR3 = videoComponentCR1.getElement();
+        sinkVideoCR3 = videoComponentCR3.getElement();
+        sinkVideoCR3.setName("cr3");
         add(sinkVideoCR3);
         link(sinkVideoCR3);
         sinkVideoCR3.syncStateWithParent();
-        vc.getGUICR().showVideo1(videoComponentCR3);
+        vc.getGUICR().showVideo3(videoComponentCR3);
         
         
         VideoComponent videoComponentCR4 = new VideoComponent();
-        sinkVideoCR4 = videoComponentCR1.getElement();
+        sinkVideoCR4 = videoComponentCR4.getElement();
+        sinkVideoCR4.setName("cr4");
         add(sinkVideoCR4);
         link(sinkVideoCR4);
         sinkVideoCR4.syncStateWithParent();
-        vc.getGUICR().showVideo1(videoComponentCR4);
+        vc.getGUICR().showVideo4(videoComponentCR4);
         
         
         
@@ -96,10 +101,10 @@ public class ReceiverPipeline extends Pipeline{
     }
     
     //public int receiveFromUnicast(Element myRtpBin) {
-    public int receiveFromUnicast(User myUser, User senderUser) {
+    public int receiveFromUnicast(String senderIP) {
         // create the receiver bin
         //unicastReceiver = new AudioUnicastReceiver(adder,myRtpBin);
-        unicastReceiver = new UnicastReceiver(myUser, senderUser, adderAudio,sinkVideo);
+        unicastReceiver = new UnicastReceiver( senderIP, adderAudio,sinkVideo);
         // add it to this
         add(unicastReceiver);
         unicastReceiver.syncStateWithParent();
@@ -121,7 +126,7 @@ public class ReceiverPipeline extends Pipeline{
                 Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
         
         RoomReceiver room = new RoomReceiver(RECEIVER_ROOM_PREFIX + roomId,
-        myUser, aRoom, ssrcToIgnore,sinkVideoCR1,sinkVideoCR2,sinkVideoCR3,sinkVideoCR4);
+        Config.ROOM_IP, ssrcToIgnore,sinkVideoCR1,sinkVideoCR2,sinkVideoCR3,sinkVideoCR4);
         // add it to this
         add(room);
         room.syncStateWithParent();

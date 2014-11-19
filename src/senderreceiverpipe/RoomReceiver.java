@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package audio;
+package senderreceiverpipe;
 
+import audio.AudioRtpDecodeBin;
 import message.User;
 import org.gstreamer.Bin;
 import org.gstreamer.Caps;
@@ -15,6 +16,7 @@ import org.gstreamer.Pad;
 import org.gstreamer.PadLinkReturn;
 import org.gstreamer.State;
 import org.gstreamer.elements.FakeSink;
+import util.Config;
 import util.Util;
 import video.VideoRtpDecodeBin;
 
@@ -38,15 +40,15 @@ public class RoomReceiver extends Bin{
     
     private int count = 0;
     
-    public RoomReceiver(String name, User myUser,User room,final long ssrcToIgnore,
+    public RoomReceiver(String name,String mutlicastIP,final long ssrcToIgnore,
             final Element video1,final Element video2,final Element video3,final Element video4) {
            super(name);
 
            //For Audio
            rtpasrc = ElementFactory.make("udpsrc", "rtpasrc");
-           rtpasrc.set("multicast-group", room.getIpAddress());
+           rtpasrc.set("multicast-group", mutlicastIP);
            rtpasrc.set("auto-multicast", true);
-           rtpasrc.set("port", room.getrtpaPort());
+           rtpasrc.set("port", Config.rtpaPortRoom);
            rtpasrc.getStaticPad("src").setCaps(Caps.fromString(AUDIO_CAPS));
            
             rtpBin = ElementFactory.make("gstrtpbin", null);
@@ -106,8 +108,8 @@ public class RoomReceiver extends Bin{
            
            ///////////Video
            rtpvsrc = ElementFactory.make("udpsrc", "rtpvsrc");
-           rtpvsrc.set("port", myUser.getrtpvPort()); // ask for a port
-           System.out.println("port rtpvsrc "+myUser.getrtpvPort());
+           rtpvsrc.set("port", Config.rtpvPortRoom); // ask for a port
+           System.out.println("port rtpvsrc "+Config.rtpvPortRoom);
            rtpvsrc.getStaticPad("src").setCaps(Caps.fromString(VIDEO_CAPS));
            
            rtpBin.connect(new Element.PAD_ADDED() {

@@ -240,13 +240,15 @@ public class VideoConference {
             serverChannel.send(new Message(MessageType.CALL_REQUEST, theUser) );
 
             //get ready for listening
-            getReceiverPipeline().receiveFromUnicast(myUser, theUser);
+            getReceiverPipeline().receiveFromUnicast(theUser.getIpAddress());
+            System.out.println("Requesting private call to "+theUser.getIpAddress());
         }
     }
 
     void acceptCall(User senderUser) {
         //get ready for listening from the originator
-        getReceiverPipeline().receiveFromUnicast(myUser, senderUser);
+        getReceiverPipeline().receiveFromUnicast(senderUser.getIpAddress());
+        System.out.println("accepting call from "+senderUser.getIpAddress());
         
         //tell the sender that his/her call is accepted
         serverChannel.send(new Message(MessageType.CALL_ACCEPTED, senderUser));
@@ -259,6 +261,7 @@ public class VideoConference {
     void callAccepted(User destUser) {
         //my call is accepted, start sending to that destUser
         senderPipeline.streamTo(myUser, destUser);  
+        System.out.println("call accepted by "+destUser.getIpAddress());
     }
     
     public GUI getGUI(){
@@ -300,6 +303,10 @@ public class VideoConference {
     void showMainGUI() {
         guiCR.setVisible(false);
         gui.setVisible(true);
+    }
+
+    void refreshUsersList() {
+        serverChannel.send(new Message(MessageType.FETCHUSERS));
     }
     
 }
