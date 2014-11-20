@@ -42,18 +42,20 @@ public class ReceiverPipeline extends Pipeline{
         //sink.set("sync", true);
         
         //video
+        /*
         VideoComponent videoComponent = new VideoComponent();
         sinkVideo = videoComponent.getElement();
         sinkVideo.setName("vcunicast");
         
-        addMany(adderAudio, sinkAudio);
-        linkMany(adderAudio, sinkAudio);
         
         add(sinkVideo);
         link(sinkVideo);
         sinkVideo.syncStateWithParent();
         vc.getGUI().showOtherVideo(videoComponent);
+        */
         
+        addMany(adderAudio, sinkAudio);
+        linkMany(adderAudio, sinkAudio);
         
         //show videos for the conference room, 
         //not sure if this can be actually done dynamically when the pipeline is already running?
@@ -122,11 +124,11 @@ public class ReceiverPipeline extends Pipeline{
     public void receiveFromRoom(long ssrcToIgnore, User myUser) {
         // create the receiver bin
         int roomId = 1;
-        User aRoom = new User("A Room", Config.ROOM_IP, Config.rtpaPortRoom, Config.rtcpasrcPortRoom,
-                Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
+       // User aRoom = new User("A Room", Config.ROOM_IP, Config.rtpaPortRoom, Config.rtcpasrcPortRoom,
+       //         Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
         
         RoomReceiver room = new RoomReceiver(RECEIVER_ROOM_PREFIX + roomId,
-        Config.ROOM_IP, ssrcToIgnore,sinkVideoCR1,sinkVideoCR2,sinkVideoCR3,sinkVideoCR4);
+        Config.ROOM_IP, ssrcToIgnore,sinkVideoCR1,sinkVideoCR2,sinkVideoCR3,sinkVideoCR4,vc);
         // add it to this
         add(room);
         room.syncStateWithParent();

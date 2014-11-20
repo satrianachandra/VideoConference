@@ -5,8 +5,8 @@
  */
 package senderreceiverpipe;
 
+import app.VideoConference;
 import audio.AudioRtpDecodeBin;
-import message.User;
 import org.gstreamer.Bin;
 import org.gstreamer.Caps;
 import org.gstreamer.Element;
@@ -15,7 +15,7 @@ import org.gstreamer.GhostPad;
 import org.gstreamer.Pad;
 import org.gstreamer.PadLinkReturn;
 import org.gstreamer.State;
-import org.gstreamer.elements.FakeSink;
+
 import util.Config;
 import util.Util;
 import video.VideoRtpDecodeBin;
@@ -41,7 +41,7 @@ public class RoomReceiver extends Bin{
     private int count = 0;
     
     public RoomReceiver(String name,String mutlicastIP,final long ssrcToIgnore,
-            final Element video1,final Element video2,final Element video3,final Element video4) {
+            final Element video1,final Element video2,final Element video3,final Element video4, VideoConference vc) {
            super(name);
 
            //For Audio
@@ -185,16 +185,36 @@ public class RoomReceiver extends Bin{
                                                 pad.link(decoderVideo.getStaticPad("sink")).equals(
                                                                 PadLinkReturn.OK));
 
-                                Pad srcVideo = new GhostPad("srcVideo", decoderVideo.getStaticPad("src"));
-                                srcVideo.setActive(true);
-                                addPad(srcVideo);
+                                //Pad srcVideo = new GhostPad("srcVideo", decoderVideo.getStaticPad("src"));
+                                //srcVideo.setActive(true);
+                               // addPad(srcVideo);
                                 
                                 switch(count){
-                                    case 0: Util.doOrDie("decoder-srcVideo1",
-                                                Element.linkMany(RoomReceiver.this,video1));
+                                    case 0: //Util.doOrDie("decoder-srcVideo1",
+                                            //    Element.linkMany(RoomReceiver.this,video1));
+                                        ////////
+                                        MyVideoBin mvp =  new MyVideoBin("myvidbin",vc.getGUICR().
+                                                getVideo1Panel(),vc.getGUICR());
+                                        add(mvp);
+                                        mvp.syncStateWithParent();
+                                         Util.doOrDie(
+                                                        "teeV-myVideoPipe",
+                                                        decoderVideo.getStaticPad("src")
+                                                                .link(mvp.getStaticPad("sink"))
+                                                                .equals(PadLinkReturn.OK));
+                                        /////////
                                             break;
-                                    case 1:Util.doOrDie("decoder-srcVideo2",
-                                                Element.linkMany(RoomReceiver.this,video2));
+                                    case 1://Util.doOrDie("decoder-srcVideo2",
+                                           //     Element.linkMany(RoomReceiver.this,video2));
+                                         MyVideoBin mvp2 =  new MyVideoBin("myvidbin2",vc.getGUICR().
+                                                getVideo2Panel(),vc.getGUICR());
+                                        add(mvp2);
+                                        mvp2.syncStateWithParent();
+                                         Util.doOrDie(
+                                                        "teeV-myVideoPipe",
+                                                        decoderVideo.getStaticPad("src")
+                                                                .link(mvp2.getStaticPad("sink"))
+                                                                .equals(PadLinkReturn.OK));
                                             break;
                                     case 2:Util.doOrDie("decoder-srcVideo3",
                                                 Element.linkMany(RoomReceiver.this,video3));
@@ -205,6 +225,7 @@ public class RoomReceiver extends Bin{
                               //  }
                               //  count++;
                             }
+                                 count++;
                         }
                 }
            });
@@ -214,26 +235,42 @@ public class RoomReceiver extends Bin{
 
            //add them to the pipeline
            System.out.println("rr1");
-           //addMany(rtcpasink,rtcpasrc,rtpasrc, rtpBin,adderAudio);
-           addMany(rtpasrc, rtpBin,adderAudio);
+           addMany(rtcpasink,rtcpasrc,rtpasrc, rtpBin,adderAudio);
+           //addMany(rtpasrc, rtpBin,adderAudio);
            System.out.println("rr2");
-           //addMany(rtcpvsink,rtcpvsrc,rtpvsrc);
-           addMany(rtpvsrc);
+           addMany(rtcpvsink,rtcpvsrc,rtpvsrc);
+           //addMany(rtpvsrc);
            System.out.println("rr3");
            // Now they are in the pipeline, we can add the ghost pad
            src = new GhostPad("src", adderAudio.getStaticPad("src"));
            addPad(src);
 
            // ###################### LINK THEM ##########################
+           //audio
            Pad padA = rtpBin.getRequestPad("recv_rtp_sink_1");
            Util.doOrDie("rtpasrc-rtpbin_recv_rtp_sink_1", rtpasrc.getStaticPad("src")
                            .link(padA).equals(PadLinkReturn.OK));
 
+           Util.doOrDie("rtpvsrc_to_rtpBin_recv_rtcp_sink_1", 
+                rtcpasrc.getStaticPad("src").link(rtpBin.getRequestPad("recv_rtcp_sink_1")).equals(PadLinkReturn.OK));
+        
+            Util.doOrDie("rtpBin-rtcpvsink_sink", 
+                rtpBin.getRequestPad("send_rtcp_src_1").link(rtcpasink.getStaticPad("sink")).equals(PadLinkReturn.OK));
+        
+        
+           
             //video
             //link them
             Pad padV = rtpBin.getRequestPad("recv_rtp_sink_0");
             Util.doOrDie("rtpvsrc_to_rtpBin_recv_rtp_sink_0", 
                 rtpvsrc.getStaticPad("src").link(padV).equals(PadLinkReturn.OK));
+   
+            
+             Util.doOrDie("rtpvsrc_to_rtpBin_recv_rtcp_sink_0", 
+                rtcpvsrc.getStaticPad("src").link(rtpBin.getRequestPad("recv_rtcp_sink_0")).equals(PadLinkReturn.OK));
+        
+             Util.doOrDie("rtpBin-rtcpvsink_sink", 
+                rtpBin.getRequestPad("send_rtcp_src_0").link(rtcpvsink.getStaticPad("sink")).equals(PadLinkReturn.OK));
         
            
            // get this ready for playing
@@ -241,7 +278,7 @@ public class RoomReceiver extends Bin{
    }
     
    public void getOut() {
-        // clean request pad from adder
+        // cflean request pad from adder
         Pad downstreamPeer = src.getPeer();
 
         this.setState(State.NULL);

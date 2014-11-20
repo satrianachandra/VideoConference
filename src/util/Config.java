@@ -30,7 +30,7 @@ public class Config {
     
     
     /** Server address (IP or hostname) */
-    public static final String SERVER_ADDRESS = "130.240.156.196";
+    public static final String SERVER_ADDRESS = "192.168.56.101";
     /** Server TCP port */
     public static final int SERVER_PORT = 8080;
     

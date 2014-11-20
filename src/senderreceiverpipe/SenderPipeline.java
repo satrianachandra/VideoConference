@@ -34,8 +34,8 @@ public class SenderPipeline extends Pipeline{
     private BaseSrc src = (BaseSrc) ElementFactory.make("alsasrc", null);
     
     //from v4l2 (webcam)
-    private BaseSrc srcV = (BaseSrc) ElementFactory.make("v4l2src", null);
-    
+    //private BaseSrc srcV = (BaseSrc) ElementFactory.make("v4l2src", null);
+    private BaseSrc srcV = (BaseSrc) ElementFactory.make("videotestsrc", null);
     
     private final Element tee = ElementFactory.make("tee", null);
     // THE SenderBin to talk with somebody
@@ -63,7 +63,7 @@ public class SenderPipeline extends Pipeline{
         Util.doOrDie("src-tee", linkMany(src, tee));
         
         //Video
-        srcV.set("device", "/dev/video0");
+        //srcV.set("device", "/dev/video0");
         srcV.setLive(true);
         addMany(srcV,teeV);
         Util.doOrDie("src-tee", linkMany(srcV, teeV));

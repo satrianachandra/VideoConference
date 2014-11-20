@@ -184,6 +184,10 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
         return panelVideo1;
     }
     
+    public javax.swing.JPanel getVideo2Panel(){
+        return panelVideo2;
+    }
+    
     public javax.swing.JList getListRoomParticipantsList(){
         return listParticipantList;
     }
