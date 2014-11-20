@@ -64,6 +64,7 @@ public class SenderPipeline extends Pipeline{
         
         //Video
         //srcV.set("device", "/dev/video0");
+        srcV.set("pattern", 1);
         srcV.setLive(true);
         addMany(srcV,teeV);
         Util.doOrDie("src-tee", linkMany(srcV, teeV));

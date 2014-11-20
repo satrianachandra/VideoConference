@@ -216,11 +216,31 @@ public class RoomReceiver extends Bin{
                                                                 .link(mvp2.getStaticPad("sink"))
                                                                 .equals(PadLinkReturn.OK));
                                             break;
-                                    case 2:Util.doOrDie("decoder-srcVideo3",
-                                                Element.linkMany(RoomReceiver.this,video3));
+                                    case 2://Util.doOrDie("decoder-srcVideo3",
+                                           //     Element.linkMany(RoomReceiver.this,video3));
+                                            MyVideoBin mvp3 =  new MyVideoBin("myvidbin3",vc.getGUICR().
+                                                getVideo3Panel(),vc.getGUICR());
+                                        add(mvp3);
+                                        mvp3.syncStateWithParent();
+                                         Util.doOrDie(
+                                                        "teeV-myVideoPipe",
+                                                        decoderVideo.getStaticPad("src")
+                                                                .link(mvp3.getStaticPad("sink"))
+                                                                .equals(PadLinkReturn.OK));
+                                        
                                             break;
-                                    case 3:Util.doOrDie("decoder-srcVideo4",
-                                                Element.linkMany(RoomReceiver.this,video4));
+                                    case 3://Util.doOrDie("decoder-srcVideo4",
+                                           //     Element.linkMany(RoomReceiver.this,video4));
+                                        MyVideoBin mvp4 =  new MyVideoBin("myvidbin4",vc.getGUICR().
+                                                getVideo4Panel(),vc.getGUICR());
+                                        add(mvp4);
+                                        mvp4.syncStateWithParent();
+                                         Util.doOrDie(
+                                                        "teeV-myVideoPipe",
+                                                        decoderVideo.getStaticPad("src")
+                                                                .link(mvp4.getStaticPad("sink"))
+                                                                .equals(PadLinkReturn.OK));
+                                        
                                             break;
                               //  }
                               //  count++;
