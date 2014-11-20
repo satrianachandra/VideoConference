@@ -46,6 +46,8 @@ public class SenderPipeline extends Pipeline{
     private VideoConference vc;
     
     SenderBin unicastSender = null;
+    VideoComponent videoComponent;
+    Element myVideoSink;
     
     public SenderPipeline(VideoConference vc){
         
@@ -65,7 +67,14 @@ public class SenderPipeline extends Pipeline{
         srcV.setLive(true);
         addMany(srcV,teeV);
         Util.doOrDie("src-tee", linkMany(srcV, teeV));
-            
+        
+        
+        //
+        videoComponent = new VideoComponent();
+        myVideoSink = videoComponent.getElement();
+        add(myVideoSink);
+        myVideoSink.syncStateWithParent();
+        //
         
     }
     
@@ -142,10 +151,8 @@ public class SenderPipeline extends Pipeline{
         
         //show my video
         
-        VideoComponent videoComponent = new VideoComponent();
-        Element myVideoSink = videoComponent.getElement();
-        add(myVideoSink);
-        myVideoSink.syncStateWithParent();
+        //
+        
         Util.doOrDie(
                         "teeV-myVideo",
                         teeV.getRequestPad("src%d")
@@ -154,7 +161,7 @@ public class SenderPipeline extends Pipeline{
         
         
         vc.getGUI().showMyVideo(videoComponent);
-        
+        //
         
         
         play();

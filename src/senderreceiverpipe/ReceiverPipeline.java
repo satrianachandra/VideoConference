@@ -28,12 +28,10 @@ public class ReceiverPipeline extends Pipeline{
     private Element sinkVideo=null;// = ElementFactory.make("autovideosink", null);
     private VideoConference vc;
     
-    /*
     private Element sinkVideoCR1;
     private Element sinkVideoCR2;
     private Element sinkVideoCR3;
     private Element sinkVideoCR4;
-    */
     
     public ReceiverPipeline(VideoConference vc){
         super("audio_receiver_pipeline");
@@ -60,7 +58,7 @@ public class ReceiverPipeline extends Pipeline{
         //show videos for the conference room, 
         //not sure if this can be actually done dynamically when the pipeline is already running?
         //for now just do it like this:
-        /*
+        
         VideoComponent videoComponentCR1 = new VideoComponent();
         sinkVideoCR1 = videoComponentCR1.getElement();
         sinkVideoCR1.setName("cr1");
@@ -96,7 +94,7 @@ public class ReceiverPipeline extends Pipeline{
         sinkVideoCR4.syncStateWithParent();
         vc.getGUICR().showVideo4(videoComponentCR4);
         
-        */
+        
         
         play();
         
@@ -126,7 +124,7 @@ public class ReceiverPipeline extends Pipeline{
         int roomId = 1;
         User aRoom = new User("A Room", Config.ROOM_IP, Config.rtpaPortRoom, Config.rtcpasrcPortRoom,
                 Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
-       /* 
+        
         RoomReceiver room = new RoomReceiver(RECEIVER_ROOM_PREFIX + roomId,
         Config.ROOM_IP, ssrcToIgnore,sinkVideoCR1,sinkVideoCR2,sinkVideoCR3,sinkVideoCR4);
         // add it to this
@@ -134,7 +132,6 @@ public class ReceiverPipeline extends Pipeline{
         room.syncStateWithParent();
         // connect its output to the adder
         room.link(adderAudio);
-               */
     }
     
     

@@ -28,7 +28,7 @@ public class ClientThread implements Runnable{
     private Socket clientSocket = null;
     private User myUser = null;
     private boolean stop = false;
-    
+    private ClientThread destinationUserThread=null;
     
     //private BufferedReader in;
     //private PrintStream out;
@@ -111,16 +111,23 @@ public class ClientThread implements Runnable{
             //write the request to the destUser's socket
             ClientThread aClientThread = getClientThreadBasedOnUser(destUser);
             aClientThread.send(new Message(MessageType.CALL_REQUEST, myUser));
-            
+            destinationUserThread = aClientThread;
+            destinationUserThread.setDestinationUserThread(this);
         }else if (message.getType() == MessageType.CALL_ACCEPTED){
-            User originator = (User)message.getContent();
-            ClientThread originatorsClientThread = getClientThreadBasedOnUser(originator);
-            originatorsClientThread.send(new Message(MessageType.CALL_ACCEPTED, myUser));
+            //User originator = (User)message.getContent();
+            //ClientThread originatorsClientThread = getClientThreadBasedOnUser(originator);
+            //originatorsClientThread.send(new Message(MessageType.CALL_ACCEPTED, myUser));
+            destinationUserThread.send(new Message(MessageType.CALL_ACCEPTED, myUser));
         }else if (message.getType()==MessageType.BYE){
+            /*
             User theOtherParty = (User)message.getContent();
             ClientThread theOtherPartyThread = getClientThreadBasedOnUser(theOtherParty);
             theOtherPartyThread.send(new Message(MessageType.BYE));
-            
+                    */
+            if (destinationUserThread !=null){
+                destinationUserThread.send(new Message(MessageType.BYE));
+                System.out.println("send bye to "+destinationUserThread.getMyUser().getIpAddress());
+            }
         }
                
     }
@@ -150,6 +157,14 @@ public class ClientThread implements Runnable{
             }    
         }
         return null;
+    }
+    
+    private ClientThread getDestinationUserThread(){
+        return this.destinationUserThread;
+    }
+    
+    private void setDestinationUserThread(ClientThread destinationUserThread){
+        this.destinationUserThread = destinationUserThread;
     }
     
 }
