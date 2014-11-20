@@ -302,4 +302,8 @@ public class GUI extends javax.swing.JFrame {
         return panelMyVideo;
     }
     
+    public javax.swing.JPanel getOtherVideoPanel(){
+        return panelOtherVideo;
+    }
+    
 }

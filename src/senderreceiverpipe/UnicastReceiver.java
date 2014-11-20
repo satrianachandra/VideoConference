@@ -6,6 +6,7 @@
 package senderreceiverpipe;
 
 
+import app.VideoConference;
 import audio.AudioRtpDecodeBin;
 import message.User;
 import org.gstreamer.Bin;
@@ -46,7 +47,7 @@ class UnicastReceiver extends Bin{
     ////
     
     //public AudioUnicastReceiver(final Element connectSrcTo,Element myRtpBin ){
-    public UnicastReceiver(String senderIP, final Element connectSrcTo,final Element connectSrcToV){
+    public UnicastReceiver(String senderIP, final Element connectSrcTo,final Element connectSrcToV, VideoConference vc){
         rtpasrc = ElementFactory.make("udpsrc", "rtpasrc");
         //udpSource.set("port", 0); // ask for a port
         
@@ -142,15 +143,26 @@ class UnicastReceiver extends Bin{
             * now that we have what we should connect to it, add the
             * ghost pad
             */
-            srcV = new GhostPad("srcV", decoder.getStaticPad("src"));
-            srcV.setActive(true);
-            addPad(srcV);
+            //srcV = new GhostPad("srcV", decoder.getStaticPad("src"));
+            //srcV.setActive(true);
+            //addPad(srcV);
+            
+            MyVideoBin mvpUnicast =  new MyVideoBin("mvpUnicast",vc.getGUI().
+                    getOtherVideoPanel(),vc.getGUI());
+            add(mvpUnicast);
+            mvpUnicast.syncStateWithParent();
+             Util.doOrDie(
+                            "teeV-myVideoPipe",
+                            decoder.getStaticPad("src")
+                                    .link(mvpUnicast.getStaticPad("sink"))
+                                    .equals(PadLinkReturn.OK));
+            
             /*
             * connect this UnicastReceiver to the Element we've been
             * asked to do
             */
         
-            Element.linkMany(UnicastReceiver.this, connectSrcToV);
+            //Element.linkMany(UnicastReceiver.this, connectSrcToV);
             }
             }
         });

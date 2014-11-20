@@ -106,7 +106,7 @@ public class ReceiverPipeline extends Pipeline{
     public int receiveFromUnicast(String senderIP) {
         // create the receiver bin
         //unicastReceiver = new AudioUnicastReceiver(adder,myRtpBin);
-        unicastReceiver = new UnicastReceiver( senderIP, adderAudio,sinkVideo);
+        unicastReceiver = new UnicastReceiver( senderIP, adderAudio,sinkVideo,vc);
         // add it to this
         add(unicastReceiver);
         unicastReceiver.syncStateWithParent();
