@@ -99,7 +99,7 @@ public class SenderPipeline extends Pipeline{
         User aRoom = new User("A Room", Config.ROOM_IP, Config.rtpaPortRoom, Config.rtcpasrcPortRoom,
                 Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
         SenderBin room = new SenderBin(SENDER_ROOM_PREFIX + roomId,
-                        myUser,aRoom, true);
+                        Config.ROOM_IP, true);
         // add it to this
         add(room);
         room.syncStateWithParent();
@@ -119,9 +119,9 @@ public class SenderPipeline extends Pipeline{
     }
 
     
-    public void streamTo(User myUser,User destUser) {
+    public void streamTo(String destUserIP) {
         // create the sender bin
-        unicastSender = new SenderBin(SENDER_UNICAST, myUser,destUser, false);
+        unicastSender = new SenderBin(SENDER_UNICAST, destUserIP, false);
         
         // add it to this
         add(unicastSender);

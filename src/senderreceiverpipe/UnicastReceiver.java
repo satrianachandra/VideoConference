@@ -51,9 +51,9 @@ class UnicastReceiver extends Bin{
         //udpSource.set("port", 0); // ask for a port
         
         //for testing, make it static
-        rtpasrc.set("port", Config.rtcpasrcPort); // ask for a port
+        rtpasrc.set("port", Config.rtpaPort); // ask for a port
         rtpasrc.getStaticPad("src").setCaps(Caps.fromString(AUDIO_CAPS));
-        System.out.println("port rtpasrc "+  Config.rtcpasrcPort);
+        System.out.println("port rtpasrc "+  Config.rtpaPort);
         
         rtcpasrc = ElementFactory.make("udpsrc", "rtcpasrc");
         rtcpasrc.set("port", Config.rtcpasrcPort);

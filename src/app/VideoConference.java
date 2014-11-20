@@ -7,6 +7,8 @@ package app;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import senderreceiverpipe.ReceiverPipeline;
 import senderreceiverpipe.SenderPipeline;
 import message.Call;
@@ -254,13 +256,33 @@ public class VideoConference {
         serverChannel.send(new Message(MessageType.CALL_ACCEPTED, senderUser));
         
         //start sending to the originator
-        senderPipeline.streamTo(myUser, senderUser);
+        senderPipeline.streamTo(senderUser.getIpAddress());
         
     }
 
     void callAccepted(User destUser) {
         //my call is accepted, start sending to that destUser
-        senderPipeline.streamTo(myUser, destUser);  
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000*3);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(VideoConference.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                senderPipeline.streamTo(destUser.getIpAddress());  
+                
+                try {
+                    Thread.sleep(1000*60);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(VideoConference.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+        }).start();
+        
+        
         System.out.println("call accepted by "+destUser.getIpAddress());
     }
     

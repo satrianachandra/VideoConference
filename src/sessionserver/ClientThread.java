@@ -5,13 +5,10 @@
  */
 package sessionserver;
 
-import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,7 +110,7 @@ public class ClientThread implements Runnable{
             User destUser = (User)message.getContent();
             //write the request to the destUser's socket
             ClientThread aClientThread = getClientThreadBasedOnUser(destUser);
-            aClientThread.send(new Message(MessageType.CALL_REQUEST, destUser));
+            aClientThread.send(new Message(MessageType.CALL_REQUEST, myUser));
             
         }else if (message.getType() == MessageType.CALL_ACCEPTED){
             User originator = (User)message.getContent();
