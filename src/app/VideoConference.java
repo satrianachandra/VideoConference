@@ -44,6 +44,8 @@ public class VideoConference {
     
     private List<User>usersListLocal;
     
+    private List<User>roomParticipantsLocal;
+    
     public VideoConference(){
        
         //GStreamer inits
@@ -52,7 +54,7 @@ public class VideoConference {
         
         
         usersListLocal = new ArrayList<>();
-        
+        roomParticipantsLocal = new ArrayList<>();
         
         
     }
@@ -309,11 +311,11 @@ public class VideoConference {
     }
 
     void joinRoom() {
-        serverChannel.send(new Message(MessageType.JOIN_ROOM));
+        serverChannel.send(new Message(MessageType.JOIN_ROOM_REQUEST));
         
         //start receiving from room
         long mySSRC = senderPipeline.streamToRoom(myUser);
-        receiverPipeline.receiveFromRoom(mySSRC, myUser);
+        //receiverPipeline.receiveFromRoom(mySSRC, myUser);
         
     }
 
@@ -329,6 +331,19 @@ public class VideoConference {
 
     void refreshUsersList() {
         serverChannel.send(new Message(MessageType.FETCHUSERS));
+    }
+
+    void updateRoomParticipantsListLocal(List<User> roomPart) {
+        roomParticipantsLocal = roomPart;
+         if (roomParticipantsLocal!=null){
+            String[]roomPartArray = new String[roomParticipantsLocal.size()];
+            for (int i=0;i<roomPartArray.length;i++){
+                roomPartArray[i]=roomParticipantsLocal.get(i).getUserName();
+                System.out.println(roomPartArray[i]);
+            }
+            //gui.getUsersListList().setModel(new javax.swing.DefaultComboBoxModel(usersArray));
+            guiCR.getListRoomParticipantsList().setModel(new javax.swing.DefaultComboBoxModel(roomPartArray));
+         }
     }
     
 }

@@ -128,6 +128,11 @@ public class ClientThread implements Runnable{
                 destinationUserThread.send(new Message(MessageType.BYE));
                 System.out.println("send bye to "+destinationUserThread.getMyUser().getIpAddress());
             }
+        }else if (message.getType() == MessageType.JOIN_ROOM_REQUEST){
+            server.getRoomParticipants().add(myUser);
+            send(new Message(MessageType.JOIN_ROOM_SUCCESS));
+            server.updateRoomParticipantsInLocals();
+            
         }
                
     }
@@ -165,6 +170,11 @@ public class ClientThread implements Runnable{
     
     private void setDestinationUserThread(ClientThread destinationUserThread){
         this.destinationUserThread = destinationUserThread;
+    }
+
+    void pushUpdatedRoomParticipants() {
+        System.out.println("pushing updated room participants---------");
+        send(new Message(MessageType.ROOM_PARTICIPANT_UPDATE, server.getRoomParticipants()));
     }
     
 }

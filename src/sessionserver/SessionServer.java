@@ -26,11 +26,13 @@ public class SessionServer implements Runnable{
     
     private List<User>usersList;
     private List<ClientThread>clientThreadList;
+    private List<User>roomParticipants;
     
     public SessionServer(int port){
         this.serverPort = port;
         usersList = new ArrayList<>();
         clientThreadList = new ArrayList<>();
+        roomParticipants = new ArrayList<>();
     }
     
     @Override
@@ -85,6 +87,16 @@ public class SessionServer implements Runnable{
     
     public List<ClientThread> getClientThreadList(){
         return clientThreadList;
+    }
+    
+    public List<User>getRoomParticipants(){
+        return roomParticipants;
+    }
+
+    void updateRoomParticipantsInLocals() {
+        for(int i=0;i<clientThreadList.size();i++){
+            clientThreadList.get(i).pushUpdatedRoomParticipants();
+        }
     }
     
 }

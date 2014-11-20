@@ -298,4 +298,8 @@ public class GUI extends javax.swing.JFrame {
         repaint();
     }
     
+    public javax.swing.JPanel getMyVideoPanel(){
+        return panelMyVideo;
+    }
+    
 }

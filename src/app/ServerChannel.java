@@ -105,6 +105,11 @@ public class ServerChannel implements Runnable {
             vc.callAccepted(destUser);
         }else if (message.getType()==MessageType.BYE){
             vc.endPrivateCall();
+        }else if (message.getType()==MessageType.JOIN_ROOM_SUCCESS){
+            System.out.println("Join room success");
+        }else if (message.getType()==MessageType.ROOM_PARTICIPANT_UPDATE){
+            List<User>roomParticipants = (List<User>)message.getContent();
+            vc.updateRoomParticipantsListLocal(roomParticipants);
         }
     }
     

@@ -196,7 +196,14 @@ public class SenderBin extends Bin{
          * didn't find any better way
          */
         String caps = getElementByNameStartingWith(rtpBin.getElements(),
-                        "rtpsession").getSinkPads().get(0).getCaps().toString();
+                        "rtpsession").getSinkPads().get(1).getCaps().toString();
+        
+        List<Pad>listofpad= getElementByNameStartingWith(rtpBin.getElements(),
+                        "rtpsession").getSinkPads();
+        for (int i=0;i<listofpad.size();i++){
+            System.out.println("caps-"+i+": "+listofpad.get(i).getCaps().toString());
+        }
+        
         int ssrcBegin = caps.indexOf("ssrc=(uint)") + 11;
         int ssrcEnd = caps.indexOf(";", ssrcBegin);
         return new Long(caps.substring(ssrcBegin, ssrcEnd));
@@ -206,10 +213,15 @@ public class SenderBin extends Bin{
     public void getOut() {
         // clean request pad from adder
         Pad upstreamPeer = sink.getPeer();
+        Pad upstreamPeerV = sinkV.getPeer();
+        
         Tee teeUpstream = ((Tee) sink.getPeer().getParent());
+        Tee teeUpstreamV = ((Tee) sinkV.getPeer().getParent());
+        
         Bin parentBin = ((Bin) this.getParent());
 
         upstreamPeer.setBlocked(true);
+        upstreamPeerV.setBlocked(true);
 
         this.setState(State.NULL);
 
@@ -223,6 +235,11 @@ public class SenderBin extends Bin{
                 parentBin.setState(State.NULL);
         }
         teeUpstream.releaseRequestPad(upstreamPeer);
+        
+        if (teeUpstreamV.getSrcPads().size() == 1) {
+                parentBin.setState(State.NULL);
+        }
+        teeUpstreamV.releaseRequestPad(upstreamPeerV);
     }
     
     

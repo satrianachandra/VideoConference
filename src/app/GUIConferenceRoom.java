@@ -32,7 +32,7 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
 
         buttonBack = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
+        listParticipantList = new javax.swing.JList();
         jLabel1 = new javax.swing.JLabel();
         buttonJoinRoom = new javax.swing.JButton();
         buttonQuitRoom = new javax.swing.JButton();
@@ -50,12 +50,12 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
             }
         });
 
-        jList1.setModel(new javax.swing.AbstractListModel() {
+        listParticipantList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane1.setViewportView(jList1);
+        jScrollPane1.setViewportView(listParticipantList);
 
         jLabel1.setText("Participants List");
 
@@ -144,8 +144,8 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
     private javax.swing.JButton buttonJoinRoom;
     private javax.swing.JButton buttonQuitRoom;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JList jList1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JList listParticipantList;
     private javax.swing.JPanel panelVideo1;
     private javax.swing.JPanel panelVideo2;
     private javax.swing.JPanel panelVideo3;
@@ -180,4 +180,11 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
         repaint();
     }
     
+    public javax.swing.JPanel getVideo1Panel(){
+        return panelVideo1;
+    }
+    
+    public javax.swing.JList getListRoomParticipantsList(){
+        return listParticipantList;
+    }
 }

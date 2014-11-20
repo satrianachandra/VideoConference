@@ -206,15 +206,24 @@ class UnicastReceiver extends Bin{
         * cause if call was refused for example)
         */
         Pad downstreamPeer = null;
+        Pad downstreamPeerV = null;
         if (src != null) {
             // before disconnecting, remember the request pad we were linked to
             downstreamPeer = src.getPeer();
+        }
+        if (srcV != null) {
+            // before disconnecting, remember the request pad we were linked to
+            downstreamPeerV = srcV.getPeer();
         }
         this.setState(State.NULL);
         ((Bin) this.getParent()).remove(this);
         if (downstreamPeer != null) {
             // clean request pad from adder
             downstreamPeer.getParentElement().releaseRequestPad(downstreamPeer);
+        }
+        if (downstreamPeerV != null) {
+            // clean request pad from adder
+            downstreamPeerV.getParentElement().releaseRequestPad(downstreamPeerV);
         }
     }
 

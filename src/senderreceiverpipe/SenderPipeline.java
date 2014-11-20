@@ -70,10 +70,7 @@ public class SenderPipeline extends Pipeline{
         
         
         //
-        videoComponent = new VideoComponent();
-        myVideoSink = videoComponent.getElement();
-        add(myVideoSink);
-        myVideoSink.syncStateWithParent();
+        
         //
         
     }
@@ -105,8 +102,8 @@ public class SenderPipeline extends Pipeline{
     
     public long streamToRoom(User myUser){
         int roomId = 1;
-        User aRoom = new User("A Room", Config.ROOM_IP, Config.rtpaPortRoom, Config.rtcpasrcPortRoom,
-                Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
+        //User aRoom = new User("A Room", Config.ROOM_IP, Config.rtpaPortRoom, Config.rtcpasrcPortRoom,
+        //        Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
         SenderBin room = new SenderBin(SENDER_ROOM_PREFIX + roomId,
                         Config.ROOM_IP, true);
         // add it to this
@@ -114,9 +111,25 @@ public class SenderPipeline extends Pipeline{
         room.syncStateWithParent();
 
         // connect its input to the tee
+        /*
         Util.doOrDie("tee-roomSender",
                         tee.getRequestPad("src%d").link(room.getStaticPad("sink"))
                                         .equals(PadLinkReturn.OK));
+        */
+        
+        // connect its input to the tee
+        Util.doOrDie(
+                        "tee-unicastSender",
+                        tee.getRequestPad("src%d")
+                                        .link(room.getStaticPad("sinkA"))
+                                        .equals(PadLinkReturn.OK));
+        
+        Util.doOrDie(
+                        "teeV-unicastSender",
+                        teeV.getRequestPad("src%d")
+                                        .link(room.getStaticPad("sinkV"))
+                                        .equals(PadLinkReturn.OK));
+        
 
         play();
 
@@ -150,7 +163,12 @@ public class SenderPipeline extends Pipeline{
                                         .equals(PadLinkReturn.OK));
         
         //show my video
-        
+        /*
+        videoComponent = new VideoComponent();
+        myVideoSink = videoComponent.getElement();
+        myVideoSink.setName("vidunicast");
+        add(myVideoSink);
+        myVideoSink.syncStateWithParent();
         //
         
         Util.doOrDie(
@@ -162,6 +180,28 @@ public class SenderPipeline extends Pipeline{
         
         vc.getGUI().showMyVideo(videoComponent);
         //
+        */
+        //
+        
+        
+        MyVideoBin mvp =  new MyVideoBin("myvidbin",vc.getGUI().getMyVideoPanel(),vc.getGUI());
+        add(mvp);
+        mvp.syncStateWithParent();
+         Util.doOrDie(
+                        "teeV-myVideoPipe",
+                        teeV.getRequestPad("src%d")
+                                        .link(mvp.getStaticPad("sink"))
+                                        .equals(PadLinkReturn.OK));
+         
+         
+        MyVideoBin mvp2 =  new MyVideoBin("myvidbin2",vc.getGUICR().getVideo1Panel(),vc.getGUICR());
+        add(mvp2);
+        mvp2.syncStateWithParent();
+         Util.doOrDie(
+                        "teeV-myVideoPipe",
+                        teeV.getRequestPad("src%d")
+                                        .link(mvp2.getStaticPad("sink"))
+                                        .equals(PadLinkReturn.OK));
         
         
         play();
@@ -169,9 +209,15 @@ public class SenderPipeline extends Pipeline{
     
     public void stopStreamingToUnicast() {
         if (unicastSender != null) {
+                Util.doOrDie(
+                        "unlinking teeV-myVideo",
+                        teeV.getRequestPad("src%d")
+                                        .unlink(myVideoSink.getStaticPad("sink")));
+                remove(myVideoSink);
                 unicastSender.getOut();
         }
         unicastSender = null;
     }
+    
     
 }
