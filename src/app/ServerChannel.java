@@ -39,16 +39,17 @@ public class ServerChannel implements Runnable {
     
     public ServerChannel(VideoConference vc){
         this.vc = vc;
-        
+        System.out.println("s1");
         try {
             //open connection to the server
             Socket socket = new Socket(InetAddress.getByName(Config.SERVER_ADDRESS),
                     Config.SERVER_PORT);
+            System.out.println("s2");
             //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             outputStream.flush();
             inputStream = new ObjectInputStream(socket.getInputStream());
-            
+            System.out.println("s3");
             //out = new PrintStream(socket.getOutputStream());
         } catch (UnknownHostException ex) {
             Logger.getLogger(ServerChannel.class.getName()).log(Level.SEVERE, null, ex);

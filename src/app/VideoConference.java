@@ -227,10 +227,13 @@ public class VideoConference {
     
     public void init(){
         //communication with server
+        System.out.println("tes0");
         serverChannel = new ServerChannel(this);
+        System.out.println("tes1");
         new Thread(serverChannel).start();
-        
+        System.out.println("tes2");
         receiverPipeline = new ReceiverPipeline(this);
+        System.out.println("tes3");
         senderPipeline = new SenderPipeline(this);
         
     }
@@ -313,9 +316,18 @@ public class VideoConference {
     void joinRoom() {
         serverChannel.send(new Message(MessageType.JOIN_ROOM_REQUEST));
         
+        System.out.println("start receiving");
+        receiverPipeline.receiveFromRoom(12, myUser);
+        
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(VideoConference.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         //start receiving from room
+        System.out.println("start sending");
         long mySSRC = senderPipeline.streamToRoom(myUser);
-        //receiverPipeline.receiveFromRoom(mySSRC, myUser);
         
     }
 

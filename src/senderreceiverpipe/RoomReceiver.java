@@ -48,13 +48,32 @@ public class RoomReceiver extends Bin{
            rtpasrc = ElementFactory.make("udpsrc", "rtpasrc");
            rtpasrc.set("multicast-group", mutlicastIP);
            rtpasrc.set("auto-multicast", true);
-           rtpasrc.set("port", Config.rtpaPortRoom);
+           rtpasrc.set("port", Config.rtpaPort);
            rtpasrc.getStaticPad("src").setCaps(Caps.fromString(AUDIO_CAPS));
+           
+           //rtcp
+           rtcpasrc = ElementFactory.make("udpsrc", "rtcpasrc");
+        rtcpasrc.set("port", Config.rtcpasrcPort);
+        System.out.println("port rtcpasrc "+  Config.rtcpasrcPort);
+        
+        rtcpasink = ElementFactory.make("udpsink", "rtcpasink");
+        rtcpasink.set("host", mutlicastIP);
+        System.out.println("host rtcpasink "+ mutlicastIP);
+        rtcpasink.set("port", Config.rtcpasrcPort);
+        System.out.println("port rtcpasink"+ Config.rtcpasrcPort);
+        rtcpasink.set("async", false);
+        rtcpasink.set("sync", false);
+        
+        
+           //
+           
            
             rtpBin = ElementFactory.make("gstrtpbin", null);
             rtpBin.set("latency", 1000);
             rtpBin.set("use-pipeline-clock",true);
         
+            
+            
             adderAudio = ElementFactory.make("liveadder", null);
            /*
             * when someone joins the room, a new SSRC appears on the stream and the
@@ -72,6 +91,7 @@ public class RoomReceiver extends Bin{
                              * We must connect it to something otherwise sound will be
                              * pushed in the void and it isn't supported by gstreamer.
                              */
+                            /*
                             if (pad.getName().contains(String.valueOf(ssrcToIgnore))) {
                                 Element fakesink = new FakeSink((String) null);
                                 RoomReceiver.this.add(fakesink);
@@ -82,6 +102,7 @@ public class RoomReceiver extends Bin{
                                                 pad.link(fakesink.getStaticPad("sink")).equals(
                                                                 PadLinkReturn.OK));
                             } else {
+                            */
                                 // create all the useful stuff for this new participant
                                 AudioRtpDecodeBin decoderAudio = new AudioRtpDecodeBin(true);
 
@@ -101,16 +122,29 @@ public class RoomReceiver extends Bin{
                                 Util.doOrDie("decoder-adderAudio",
                                                 decoderAudio.getStaticPad("src").link(adderAudioPad)
                                                             .equals(PadLinkReturn.OK));
-                            }
+                            //}
                         }
                 }
            });
            
            ///////////Video
            rtpvsrc = ElementFactory.make("udpsrc", "rtpvsrc");
-           rtpvsrc.set("port", Config.rtpvPortRoom); // ask for a port
-           System.out.println("port rtpvsrc "+Config.rtpvPortRoom);
+           rtpvsrc.set("port", Config.rtpvPort); // ask for a port
+           System.out.println("port rtpvsrc "+Config.rtpvPort);
            rtpvsrc.getStaticPad("src").setCaps(Caps.fromString(VIDEO_CAPS));
+           
+           rtcpvsrc = ElementFactory.make("udpsrc", "rtcpvsrc");
+        rtcpvsrc.set("port", Config.rtcpvsrcPort);
+        System.out.println("rtcpvsrc port: "+Config.rtcpvsrcPort);
+        
+        rtcpvsink = ElementFactory.make("udpsink", "rtcpvsink");
+        rtcpvsink.set("host", mutlicastIP);
+        System.out.println("host rtcpvsink "+mutlicastIP);
+        rtcpvsink.set("port", Config.rtcpvsrcPort);
+        System.out.println("port rtcpvsink "+Config.rtcpvsrcPort);
+        rtcpvsink.set("async", false);
+        rtcpvsink.set("sync", false);
+        
            
            rtpBin.connect(new Element.PAD_ADDED() {
                 @Override
@@ -123,6 +157,8 @@ public class RoomReceiver extends Bin{
                              * We must connect it to something otherwise sound will be
                              * pushed in the void and it isn't supported by gstreamer.
                              */
+                            
+                            /*
                             if (pad.getName().contains(String.valueOf(ssrcToIgnore))) {
                                 Element fakesink = new FakeSink("fakeSinkVideo");
                                 RoomReceiver.this.add(fakesink);
@@ -133,7 +169,8 @@ public class RoomReceiver extends Bin{
                                                 pad.link(fakesink.getStaticPad("sink")).equals(
                                                                 PadLinkReturn.OK));
                             } else {
-                                // create all the useful stuff for this new participant
+                            */
+                                    // create all the useful stuff for this new participant
                                 VideoRtpDecodeBin decoderVideo = new VideoRtpDecodeBin(true);
 
                                 // add them
@@ -165,8 +202,8 @@ public class RoomReceiver extends Bin{
                                     case 3:Util.doOrDie("decoder-srcVideo4",
                                                 Element.linkMany(RoomReceiver.this,video4));
                                             break;
-                                }
-                                count++;
+                              //  }
+                              //  count++;
                             }
                         }
                 }
@@ -176,9 +213,13 @@ public class RoomReceiver extends Bin{
            //////////////////////////
 
            //add them to the pipeline
-           addMany(rtcpasink,rtcpasrc,rtpasrc, rtpBin,adderAudio);
-           addMany(rtcpvsink,rtcpvsrc,rtpvsrc);
-           
+           System.out.println("rr1");
+           //addMany(rtcpasink,rtcpasrc,rtpasrc, rtpBin,adderAudio);
+           addMany(rtpasrc, rtpBin,adderAudio);
+           System.out.println("rr2");
+           //addMany(rtcpvsink,rtcpvsrc,rtpvsrc);
+           addMany(rtpvsrc);
+           System.out.println("rr3");
            // Now they are in the pipeline, we can add the ghost pad
            src = new GhostPad("src", adderAudio.getStaticPad("src"));
            addPad(src);

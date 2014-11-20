@@ -58,7 +58,7 @@ public class ReceiverPipeline extends Pipeline{
         //show videos for the conference room, 
         //not sure if this can be actually done dynamically when the pipeline is already running?
         //for now just do it like this:
-        
+        /*
         VideoComponent videoComponentCR1 = new VideoComponent();
         sinkVideoCR1 = videoComponentCR1.getElement();
         sinkVideoCR1.setName("cr1");
@@ -94,7 +94,7 @@ public class ReceiverPipeline extends Pipeline{
         sinkVideoCR4.syncStateWithParent();
         vc.getGUICR().showVideo4(videoComponentCR4);
         
-        
+        */
         
         play();
         

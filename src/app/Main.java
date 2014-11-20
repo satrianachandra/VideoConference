@@ -17,17 +17,12 @@ import sessionserver.SessionServer;
  */
 public class Main {
    public static void main(String[]args) {
-       
+       System.out.println("hahaha2");
        //start the server
        //just 1 server needed.
        SessionServer ss = new SessionServer(8080);
        new Thread(ss).start();
-       
-       try {
-                Thread.sleep(2000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
+      
        //start the client
        final VideoConference vc= new VideoConference();
        boolean testing = false;
@@ -38,12 +33,17 @@ public class Main {
              final GUI gui = new GUI(vc);
              gui.setVisible(true);
              vc.setGUI(gui);
-
+             System.out.println("2");
 
              final GUIConferenceRoom guiCR = new GUIConferenceRoom(vc);
+             System.out.println("3");
+
              vc.setGUICR(guiCR);
-             guiCR.setVisible(false);
+             System.out.println("4");
+
+            guiCR.setVisible(false);
              vc.init();
+             System.out.println("5");
 
              }
          });
