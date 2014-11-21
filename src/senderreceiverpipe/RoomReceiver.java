@@ -40,8 +40,7 @@ public class RoomReceiver extends Bin{
     
     private int count = 0;
     
-    public RoomReceiver(String name,String mutlicastIP,final long ssrcToIgnore,
-            final Element video1,final Element video2,final Element video3,final Element video4, VideoConference vc) {
+    public RoomReceiver(String name,String mutlicastIP,final long ssrcToIgnore, VideoConference vc) {
            super(name);
 
            //For Audio

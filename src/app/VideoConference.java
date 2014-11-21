@@ -59,39 +59,6 @@ public class VideoConference {
         
     }
     
-    public void joinRoom(int roomId) {
-        /*
-         * remember my SSRC to remove it from the incoming stream from multicast
-         * (prevents echo of my own voice)
-         */
-        //long mySSRC = senderAudio.streamTo(roomId);
-        //receiverAudio.receiveFromRoom(roomId, mySSRC);
-
-            /*
-        send(new Join(roomId));
-        try {
-                control.getRoomsListFinished().acquire();
-        } catch (InterruptedException e) {
-                System.err
-                                .println("This thread has been interrupted while waiting the end "
-                                                + "of a message from the server, message might be incomplete...");
-                e.printStackTrace();
-        }
-        Room newRoom = updateAfterJoin(control.getUpdatedAudience());
-        boolean createRoom = true;
-        for (Room oldRoom : allRooms) {
-                if (oldRoom.getId() == newRoom.getId()) {
-                        allRooms.set(allRooms.indexOf(oldRoom), newRoom);
-                        createRoom = false;
-                }
-        }
-        if (createRoom) {
-                allRooms.add(newRoom);
-        }*/
-        
-        
-    }
-    
     public void leaveRoom(int roomId) {
         /*
         getControl().send(new Leave(roomId).toString());
@@ -249,45 +216,30 @@ public class VideoConference {
             //get ready for listening
             getReceiverPipeline().receiveFromUnicast(theUser.getIpAddress());
             System.out.println("Requesting private call to "+theUser.getIpAddress());
+            
+            gui.getButtonCall().setEnabled(false);
+            gui.getButtonHangUp().setEnabled(true);
         }
     }
 
     void acceptCall(User senderUser) {
-        //get ready for listening from the originator
-        getReceiverPipeline().receiveFromUnicast(senderUser.getIpAddress());
-        System.out.println("accepting call from "+senderUser.getIpAddress());
-        
-        //tell the sender that his/her call is accepted
-        serverChannel.send(new Message(MessageType.CALL_ACCEPTED, senderUser));
-        
-        //start sending to the originator
-        senderPipeline.streamTo(senderUser.getIpAddress());
+        if (destinationUser == null){
+            destinationUser = senderUser;
+            //get ready for listening from the originator
+            getReceiverPipeline().receiveFromUnicast(senderUser.getIpAddress());
+            System.out.println("accepting call from "+senderUser.getIpAddress());
+
+            //tell the sender that his/her call is accepted
+            serverChannel.send(new Message(MessageType.CALL_ACCEPTED, senderUser));
+
+            //start sending to the originator
+            senderPipeline.streamTo(senderUser.getIpAddress());
+        }
         
     }
 
     void callAccepted(User destUser) {
-        //my call is accepted, start sending to that destUser
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1000*3);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(VideoConference.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                senderPipeline.streamTo(destUser.getIpAddress());  
-                
-                try {
-                    Thread.sleep(1000*60);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(VideoConference.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-            }
-        }).start();
-        
-        
+        senderPipeline.streamTo(destUser.getIpAddress());
         System.out.println("call accepted by "+destUser.getIpAddress());
     }
     
@@ -301,14 +253,19 @@ public class VideoConference {
 
     void endPrivateCall() {
         if (destinationUser!=null){
+            
+            gui.getButtonCall().setEnabled(true);
+            gui.getButtonHangUp().setEnabled(false);
+            
             serverChannel.send(new Message(MessageType.BYE, destinationUser));
             
+            //stop receiviing
+            receiverPipeline.stopUnicastReceiving();
             
             //stop sending
             senderPipeline.stopStreamingToUnicast();
             
-            //stop receiviing
-            receiverPipeline.stopUnicastReceiving();
+            
         }
         destinationUser=null;
     }
@@ -320,7 +277,7 @@ public class VideoConference {
         receiverPipeline.receiveFromRoom(12, myUser);
         
         try {
-            Thread.sleep(2000);
+            Thread.sleep(5000);
         } catch (InterruptedException ex) {
             Logger.getLogger(VideoConference.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -328,6 +285,9 @@ public class VideoConference {
         //start receiving from room
         System.out.println("start sending");
         long mySSRC = senderPipeline.streamToRoom(myUser);
+        
+        guiCR.getButtonQuitRoom().setEnabled(true);
+        guiCR.getButtonJoinRoom().setEnabled(false);
         
     }
 
@@ -356,6 +316,18 @@ public class VideoConference {
             //gui.getUsersListList().setModel(new javax.swing.DefaultComboBoxModel(usersArray));
             guiCR.getListRoomParticipantsList().setModel(new javax.swing.DefaultComboBoxModel(roomPartArray));
          }
+    }
+
+    void quitRoom() {
+        
+        //notify the server
+        serverChannel.send(new Message(MessageType.QUIT_ROOM));
+        
+        senderPipeline.stopStreamingToRoom();
+        receiverPipeline.stopRoomReceiving();
+        
+        guiCR.getButtonJoinRoom().setEnabled(true);
+        guiCR.getButtonQuitRoom().setEnabled(false);
     }
     
 }

@@ -133,6 +133,9 @@ public class ClientThread implements Runnable{
             send(new Message(MessageType.JOIN_ROOM_SUCCESS));
             server.updateRoomParticipantsInLocals();
             
+        }else if (message.getType() == MessageType.QUIT_ROOM){
+            server.getRoomParticipants().remove(myUser);
+            server.updateRoomParticipantsInLocals();
         }
                
     }

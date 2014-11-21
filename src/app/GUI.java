@@ -24,6 +24,7 @@ public class GUI extends javax.swing.JFrame {
         initComponents();
         this.myVC = myVC;
         panelMain.setVisible(false);
+        buttonHangUp.setEnabled(false);
     }
 
     /**
@@ -306,4 +307,11 @@ public class GUI extends javax.swing.JFrame {
         return panelOtherVideo;
     }
     
+    public javax.swing.JButton getButtonCall(){
+        return buttonCall;
+    }
+    
+    public javax.swing.JButton getButtonHangUp(){
+        return buttonHangUp;
+    }
 }

@@ -19,4 +19,5 @@ public class MessageType {
     public static final int JOIN_ROOM_REQUEST = 16;
     public static final int JOIN_ROOM_SUCCESS = 17;
     public static final int ROOM_PARTICIPANT_UPDATE = 18;
+    public static final int QUIT_ROOM = 19;
 }

@@ -21,6 +21,7 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
     public GUIConferenceRoom(VideoConference vc) {
         initComponents();
         this.vc = vc;
+        buttonQuitRoom.setEnabled(false);
     }
 
     /**
@@ -64,6 +65,11 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
         });
 
         buttonQuitRoom.setText("Quit Room");
+        buttonQuitRoom.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonQuitRoomActionPerformed(evt);
+            }
+        });
 
         panelVideo1.setLayout(new java.awt.BorderLayout());
 
@@ -141,6 +147,10 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
         vc.showMainGUI();
     }//GEN-LAST:event_buttonBackActionPerformed
 
+    private void buttonQuitRoomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonQuitRoomActionPerformed
+        vc.quitRoom();
+    }//GEN-LAST:event_buttonQuitRoomActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonBack;
@@ -203,5 +213,11 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
         return listParticipantList;
     }
 
+    public javax.swing.JButton getButtonJoinRoom(){
+        return buttonJoinRoom;
+    }
     
+    public javax.swing.JButton getButtonQuitRoom(){
+        return buttonQuitRoom;
+    }
 }

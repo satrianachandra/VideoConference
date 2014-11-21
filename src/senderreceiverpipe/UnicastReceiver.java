@@ -17,6 +17,7 @@ import org.gstreamer.GhostPad;
 import org.gstreamer.Pad;
 import org.gstreamer.PadLinkReturn;
 import org.gstreamer.State;
+import org.gstreamer.swing.VideoComponent;
 import util.Config;
 import util.Util;
 
@@ -44,10 +45,12 @@ class UnicastReceiver extends Bin{
     private static final String VIDEO_CAPS="application/x-rtp, media=(string)video, clock-rate=(int)90000,encoding-name=(string)VP8-DRAFT-IETF-01,width=320, height=240";
     private Element rtpvsrc,rtcpvsrc,rtcpvsink;
     private Pad srcV;
+    
+    private Element myVideoSink;
     ////
     
     //public AudioUnicastReceiver(final Element connectSrcTo,Element myRtpBin ){
-    public UnicastReceiver(String senderIP, final Element connectSrcTo,final Element connectSrcToV, VideoConference vc){
+    public UnicastReceiver(String senderIP, final Element connectSrcTo, VideoConference vc){
         rtpasrc = ElementFactory.make("udpsrc", "rtpasrc");
         //udpSource.set("port", 0); // ask for a port
         
@@ -146,17 +149,31 @@ class UnicastReceiver extends Bin{
             //srcV = new GhostPad("srcV", decoder.getStaticPad("src"));
             //srcV.setActive(true);
             //addPad(srcV);
-            
+            /*
             MyVideoBin mvpUnicast =  new MyVideoBin("mvpUnicast",vc.getGUI().
                     getOtherVideoPanel(),vc.getGUI());
             add(mvpUnicast);
             mvpUnicast.syncStateWithParent();
              Util.doOrDie(
-                            "teeV-myVideoPipe",
+                            "teeV-myVideoPipeUnicast",
                             decoder.getStaticPad("src")
                                     .link(mvpUnicast.getStaticPad("sink"))
                                     .equals(PadLinkReturn.OK));
+            */
             
+             VideoComponent videoComponent = new VideoComponent();
+            myVideoSink = videoComponent.getElement();
+            myVideoSink.setName("vidunicast");
+            add(myVideoSink);
+            link(myVideoSink);
+            myVideoSink.syncStateWithParent();
+             Util.doOrDie(
+                            "teeV-myVideoPipeUnicast",
+                            decoder.getStaticPad("src")
+                                    .link(myVideoSink.getStaticPad("sink"))
+                                    .equals(PadLinkReturn.OK));
+             
+             vc.getGUI().showOtherVideo(videoComponent);
             /*
             * connect this UnicastReceiver to the Element we've been
             * asked to do
@@ -218,24 +235,16 @@ class UnicastReceiver extends Bin{
         * cause if call was refused for example)
         */
         Pad downstreamPeer = null;
-        Pad downstreamPeerV = null;
         if (src != null) {
             // before disconnecting, remember the request pad we were linked to
             downstreamPeer = src.getPeer();
         }
-        if (srcV != null) {
-            // before disconnecting, remember the request pad we were linked to
-            downstreamPeerV = srcV.getPeer();
-        }
+        
         this.setState(State.NULL);
         ((Bin) this.getParent()).remove(this);
         if (downstreamPeer != null) {
             // clean request pad from adder
             downstreamPeer.getParentElement().releaseRequestPad(downstreamPeer);
-        }
-        if (downstreamPeerV != null) {
-            // clean request pad from adder
-            downstreamPeerV.getParentElement().releaseRequestPad(downstreamPeerV);
         }
     }
 

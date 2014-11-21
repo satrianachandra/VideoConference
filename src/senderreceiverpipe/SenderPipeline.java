@@ -34,13 +34,13 @@ public class SenderPipeline extends Pipeline{
     private BaseSrc src = (BaseSrc) ElementFactory.make("alsasrc", null);
     
     //from v4l2 (webcam)
-    //private BaseSrc srcV = (BaseSrc) ElementFactory.make("v4l2src", null);
-    private BaseSrc srcV = (BaseSrc) ElementFactory.make("videotestsrc", null);
+    private BaseSrc srcV = (BaseSrc) ElementFactory.make("v4l2src", null);
+    //private BaseSrc srcV = (BaseSrc) ElementFactory.make("videotestsrc", null);
     
-    private final Element tee = ElementFactory.make("tee", null);
+    private final Element tee = ElementFactory.make("tee", "teeA");
     // THE SenderBin to talk with somebody
     
-    private final Element teeV = ElementFactory.make("tee", null);
+    private final Element teeV = ElementFactory.make("tee", "teeV");
     // THE SenderBin to talk with somebody
     
     private VideoConference vc;
@@ -57,17 +57,22 @@ public class SenderPipeline extends Pipeline{
         
         // live source => drop stream when in paused state
         src.setLive(true);
-        
         addMany(src, tee);
-        
         Util.doOrDie("src-tee", linkMany(src, tee));
         
         //Video
-        //srcV.set("device", "/dev/video0");
-        srcV.set("pattern", 1);
+        srcV.set("device", "/dev/video0");
+       // srcV.set("pattern", 1);
         srcV.setLive(true);
         addMany(srcV,teeV);
         Util.doOrDie("src-tee", linkMany(srcV, teeV));
+        
+        
+        videoComponent = new VideoComponent();
+        myVideoSink = videoComponent.getElement();
+        myVideoSink.setName("vidunicast");
+        add(myVideoSink);
+        myVideoSink.syncStateWithParent();
         
         
         //
@@ -141,6 +146,9 @@ public class SenderPipeline extends Pipeline{
         ((SenderBin) getElementByName(SENDER_ROOM_PREFIX + roomId)).getOut();
     }
 
+    public void stopStreamingToRoom() {
+        ((SenderBin) getElementByName(SENDER_ROOM_PREFIX + 1)).getOut();
+    }
     
     public void streamTo(String destUserIP) {
         // create the sender bin
@@ -164,12 +172,7 @@ public class SenderPipeline extends Pipeline{
                                         .equals(PadLinkReturn.OK));
         
         //show my video
-        /*
-        videoComponent = new VideoComponent();
-        myVideoSink = videoComponent.getElement();
-        myVideoSink.setName("vidunicast");
-        add(myVideoSink);
-        myVideoSink.syncStateWithParent();
+        
         //
         
         Util.doOrDie(
@@ -181,10 +184,10 @@ public class SenderPipeline extends Pipeline{
         
         vc.getGUI().showMyVideo(videoComponent);
         //
-        */
+        
         //
         
-        
+       /*
         MyVideoBin mvp =  new MyVideoBin("myvidbin",vc.getGUI().getMyVideoPanel(),vc.getGUI());
         add(mvp);
         mvp.syncStateWithParent();
@@ -194,7 +197,8 @@ public class SenderPipeline extends Pipeline{
                                         .link(mvp.getStaticPad("sink"))
                                         .equals(PadLinkReturn.OK));
          
-         
+        */ 
+        /*
         MyVideoBin mvp2 =  new MyVideoBin("myvidbin2",vc.getGUICR().getVideo1Panel(),vc.getGUICR());
         add(mvp2);
         mvp2.syncStateWithParent();
@@ -204,17 +208,12 @@ public class SenderPipeline extends Pipeline{
                                         .link(mvp2.getStaticPad("sink"))
                                         .equals(PadLinkReturn.OK));
         
-        
+        */
         play();
     }
     
     public void stopStreamingToUnicast() {
         if (unicastSender != null) {
-                Util.doOrDie(
-                        "unlinking teeV-myVideo",
-                        teeV.getRequestPad("src%d")
-                                        .unlink(myVideoSink.getStaticPad("sink")));
-                remove(myVideoSink);
                 unicastSender.getOut();
         }
         unicastSender = null;

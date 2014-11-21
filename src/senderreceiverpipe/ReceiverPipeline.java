@@ -57,46 +57,6 @@ public class ReceiverPipeline extends Pipeline{
         addMany(adderAudio, sinkAudio);
         linkMany(adderAudio, sinkAudio);
         
-        //show videos for the conference room, 
-        //not sure if this can be actually done dynamically when the pipeline is already running?
-        //for now just do it like this:
-        /*
-        VideoComponent videoComponentCR1 = new VideoComponent();
-        sinkVideoCR1 = videoComponentCR1.getElement();
-        sinkVideoCR1.setName("cr1");
-        add(sinkVideoCR1);
-        link(sinkVideoCR1);
-        sinkVideoCR1.syncStateWithParent();
-        vc.getGUICR().showVideo1(videoComponentCR1);
-        
-        
-        VideoComponent videoComponentCR2 = new VideoComponent();
-        sinkVideoCR2 = videoComponentCR2.getElement();
-        sinkVideoCR2.setName("cr2");
-        add(sinkVideoCR2);
-        link(sinkVideoCR2);
-        sinkVideoCR2.syncStateWithParent();
-        vc.getGUICR().showVideo2(videoComponentCR2);
-        
-        
-        VideoComponent videoComponentCR3 = new VideoComponent();
-        sinkVideoCR3 = videoComponentCR3.getElement();
-        sinkVideoCR3.setName("cr3");
-        add(sinkVideoCR3);
-        link(sinkVideoCR3);
-        sinkVideoCR3.syncStateWithParent();
-        vc.getGUICR().showVideo3(videoComponentCR3);
-        
-        
-        VideoComponent videoComponentCR4 = new VideoComponent();
-        sinkVideoCR4 = videoComponentCR4.getElement();
-        sinkVideoCR4.setName("cr4");
-        add(sinkVideoCR4);
-        link(sinkVideoCR4);
-        sinkVideoCR4.syncStateWithParent();
-        vc.getGUICR().showVideo4(videoComponentCR4);
-        
-        */
         
         play();
         
@@ -106,7 +66,7 @@ public class ReceiverPipeline extends Pipeline{
     public int receiveFromUnicast(String senderIP) {
         // create the receiver bin
         //unicastReceiver = new AudioUnicastReceiver(adder,myRtpBin);
-        unicastReceiver = new UnicastReceiver( senderIP, adderAudio,sinkVideo,vc);
+        unicastReceiver = new UnicastReceiver( senderIP, adderAudio,vc);
         // add it to this
         add(unicastReceiver);
         unicastReceiver.syncStateWithParent();
@@ -128,7 +88,7 @@ public class ReceiverPipeline extends Pipeline{
        //         Config.rtpvPortRoom, Config.rtcpvsrcPortRoom);
         
         RoomReceiver room = new RoomReceiver(RECEIVER_ROOM_PREFIX + roomId,
-        Config.ROOM_IP, ssrcToIgnore,sinkVideoCR1,sinkVideoCR2,sinkVideoCR3,sinkVideoCR4,vc);
+        Config.ROOM_IP, ssrcToIgnore,vc);
         // add it to this
         add(room);
         room.syncStateWithParent();
@@ -143,7 +103,10 @@ public class ReceiverPipeline extends Pipeline{
         .getOut();
     }
     
-
+    public void stopRoomReceiving() {
+        ((RoomReceiver) getElementByName(RECEIVER_ROOM_PREFIX + 1))
+        .getOut();
+    }
     
     
 }
