@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import message.User;
 import sessionserver.SessionServer;
+import util.Config;
 
 /**
  *
@@ -20,9 +21,11 @@ public class Main {
        System.out.println("hahaha2");
        //start the server
        //just 1 server needed.
-       SessionServer ss = new SessionServer(8080);
+       SessionServer ss = new SessionServer(Config.SERVER_PORT);
        new Thread(ss).start();
       
+       
+       
        //start the client
        final VideoConference vc= new VideoConference();
        boolean testing = false;
