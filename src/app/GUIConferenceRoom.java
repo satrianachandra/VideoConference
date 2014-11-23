@@ -51,19 +51,19 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(255, 249, 204));
 
-        panelVideo1.setBackground(new java.awt.Color(255, 186, 86));
+        panelVideo1.setBackground(new java.awt.Color(254, 235, 177));
         panelVideo1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         panelVideo1.setLayout(new java.awt.BorderLayout());
 
-        panelVideo3.setBackground(new java.awt.Color(255, 186, 86));
+        panelVideo3.setBackground(new java.awt.Color(254, 235, 177));
         panelVideo3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
         panelVideo3.setLayout(new java.awt.BorderLayout());
 
-        panelVideo2.setBackground(new java.awt.Color(255, 186, 86));
+        panelVideo2.setBackground(new java.awt.Color(254, 235, 177));
         panelVideo2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         panelVideo2.setLayout(new java.awt.BorderLayout());
 
-        panelVideo4.setBackground(new java.awt.Color(255, 186, 86));
+        panelVideo4.setBackground(new java.awt.Color(254, 235, 177));
         panelVideo4.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         panelVideo4.setLayout(new java.awt.BorderLayout());
 
