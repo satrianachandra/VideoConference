@@ -29,11 +29,9 @@ public class VideoConference {
     
     private GUI gui;
     private GUIConferenceRoom guiCR;
-    
-    private String myUserName;
     private User myUser = null;
     private User destinationUser = null;
-    
+    private int myPositionInCR = -1;
     
     /** GStreamer pipeline to receive from rooms and contact */
     private ReceiverPipeline receiverPipeline;
@@ -194,13 +192,12 @@ public class VideoConference {
     
     public void init(){
         //communication with server
-        System.out.println("tes0");
         serverChannel = new ServerChannel(this);
-        System.out.println("tes1");
+        //open communication channel to the server
         new Thread(serverChannel).start();
-        System.out.println("tes2");
+        
+        //initialize receiver and sender pipeline
         receiverPipeline = new ReceiverPipeline(this);
-        System.out.println("tes3");
         senderPipeline = new SenderPipeline(this);
         
     }
@@ -208,17 +205,19 @@ public class VideoConference {
     void privateCall(int index) {
         if (destinationUser == null){
             User theUser = usersListLocal.get(index);
-            destinationUser = theUser;
-            
-            //ask server to tell the receiver to prepare
-            serverChannel.send(new Message(MessageType.CALL_REQUEST, theUser) );
+            if (!theUser.getUserName().equalsIgnoreCase(myUser.getUserName())){
+                destinationUser = theUser;
 
-            //get ready for listening
-            getReceiverPipeline().receiveFromUnicast(theUser.getIpAddress());
-            System.out.println("Requesting private call to "+theUser.getIpAddress());
-            
-            gui.getButtonCall().setEnabled(false);
-            gui.getButtonHangUp().setEnabled(true);
+                //ask server to tell the receiver to prepare
+                serverChannel.send(new Message(MessageType.CALL_REQUEST, theUser) );
+
+                //get ready for listening
+                getReceiverPipeline().receiveFromUnicast(theUser.getIpAddress());
+                System.out.println("Requesting private call to "+theUser.getIpAddress());
+
+                gui.getButtonCall().setEnabled(false);
+                gui.getButtonHangUp().setEnabled(true);
+            }
         }
     }
 
@@ -250,6 +249,10 @@ public class VideoConference {
     public GUIConferenceRoom getGUICR(){
         return guiCR;
     }
+    
+    public int getMyPositionInCR(){
+        return myPositionInCR;
+    }
 
     void endPrivateCall() {
         if (destinationUser!=null){
@@ -274,7 +277,7 @@ public class VideoConference {
         serverChannel.send(new Message(MessageType.JOIN_ROOM_REQUEST));
         
         System.out.println("start receiving");
-        receiverPipeline.receiveFromRoom(12, myUser);
+        receiverPipeline.receiveFromRoom(99999, myUser);
         
         try {
             Thread.sleep(5000);
@@ -312,6 +315,9 @@ public class VideoConference {
             for (int i=0;i<roomPartArray.length;i++){
                 roomPartArray[i]=roomParticipantsLocal.get(i).getUserName();
                 System.out.println(roomPartArray[i]);
+                if (roomPartArray[i].equalsIgnoreCase(myUser.getUserName())){
+                    myPositionInCR = i;
+                }
             }
             //gui.getUsersListList().setModel(new javax.swing.DefaultComboBoxModel(usersArray));
             guiCR.getListRoomParticipantsList().setModel(new javax.swing.DefaultComboBoxModel(roomPartArray));

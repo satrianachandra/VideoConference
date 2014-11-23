@@ -34,10 +34,10 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        panelVideo1 = new javax.swing.JPanel();
         panelVideo3 = new javax.swing.JPanel();
-        panelVideo2 = new javax.swing.JPanel();
+        panelVideo1 = new javax.swing.JPanel();
         panelVideo4 = new javax.swing.JPanel();
+        panelVideo2 = new javax.swing.JPanel();
         buttonQuitRoom = new javax.swing.JButton();
         buttonJoinRoom = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -51,21 +51,21 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(255, 249, 204));
 
-        panelVideo1.setBackground(new java.awt.Color(254, 235, 177));
-        panelVideo1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
-        panelVideo1.setLayout(new java.awt.BorderLayout());
-
         panelVideo3.setBackground(new java.awt.Color(254, 235, 177));
-        panelVideo3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        panelVideo3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         panelVideo3.setLayout(new java.awt.BorderLayout());
 
-        panelVideo2.setBackground(new java.awt.Color(254, 235, 177));
-        panelVideo2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
-        panelVideo2.setLayout(new java.awt.BorderLayout());
+        panelVideo1.setBackground(new java.awt.Color(254, 235, 177));
+        panelVideo1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        panelVideo1.setLayout(new java.awt.BorderLayout());
 
         panelVideo4.setBackground(new java.awt.Color(254, 235, 177));
         panelVideo4.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         panelVideo4.setLayout(new java.awt.BorderLayout());
+
+        panelVideo2.setBackground(new java.awt.Color(254, 235, 177));
+        panelVideo2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
+        panelVideo2.setLayout(new java.awt.BorderLayout());
 
         buttonQuitRoom.setIcon(new javax.swing.ImageIcon(getClass().getResource("/app/image/goout.png"))); // NOI18N
         buttonQuitRoom.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -90,7 +90,7 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Liberation Serif", 1, 18)); // NOI18N
         jLabel1.setText("Participants List");
 
-        listParticipantList.setBackground(new java.awt.Color(255, 186, 86));
+        listParticipantList.setBackground(new java.awt.Color(254, 235, 177));
         jScrollPane1.setViewportView(listParticipantList);
 
         buttonBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/app/image/back.jpg"))); // NOI18N
@@ -123,12 +123,12 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
                                         .addComponent(buttonJoinRoom, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(panelVideo1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(panelVideo3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(panelVideo3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(panelVideo1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelVideo2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(panelVideo4, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(panelVideo4, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(panelVideo2, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(78, 78, 78))
         );
         jPanel1Layout.setVerticalGroup(
@@ -146,12 +146,12 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
                         .addComponent(buttonQuitRoom))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(panelVideo3, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(panelVideo4, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(panelVideo1, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(panelVideo2, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(panelVideo2, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
-                            .addComponent(panelVideo1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(panelVideo4, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+                            .addComponent(panelVideo3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(buttonBack)
                 .addGap(24, 24, 24))
@@ -200,20 +200,6 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
     private javax.swing.JPanel panelVideo4;
     // End of variables declaration//GEN-END:variables
 
-    public void showVideo1(javax.swing.JComponent c){
-        panelVideo1.removeAll();
-        panelVideo1.add(c);
-        revalidate();
-        repaint();
-    }
-    
-    public void showVideo2(javax.swing.JComponent c){
-        panelVideo2.removeAll();
-        panelVideo2.add(c);
-        revalidate();
-        repaint();
-    }
-    
     public void showVideo3(javax.swing.JComponent c){
         panelVideo3.removeAll();
         panelVideo3.add(c);
@@ -224,6 +210,20 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
     public void showVideo4(javax.swing.JComponent c){
         panelVideo4.removeAll();
         panelVideo4.add(c);
+        revalidate();
+        repaint();
+    }
+    
+    public void showVideo1(javax.swing.JComponent c){
+        panelVideo1.removeAll();
+        panelVideo1.add(c);
+        revalidate();
+        repaint();
+    }
+    
+    public void showVideo2(javax.swing.JComponent c){
+        panelVideo2.removeAll();
+        panelVideo2.add(c);
         revalidate();
         repaint();
     }

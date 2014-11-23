@@ -42,7 +42,7 @@ class UnicastReceiver extends Bin{
     
     
     //video
-    private static final String VIDEO_CAPS="application/x-rtp, media=(string)video, clock-rate=(int)90000,encoding-name=(string)VP8-DRAFT-IETF-01,width=320, height=240";
+    private static final String VIDEO_CAPS="application/x-rtp, media=(string)video, clock-rate=(int)90000,encoding-name=(string)VP8-DRAFT-IETF-01,width=320, height=240, rtcp-fb-nack-pli=(int)1";
     private Element rtpvsrc,rtcpvsrc,rtcpvsink;
     private Pad srcV;
     

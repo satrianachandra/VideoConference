@@ -49,6 +49,9 @@ public class SenderPipeline extends Pipeline{
     VideoComponent videoComponent;
     Element myVideoSink;
     
+    //VideoComponent videoComponentCR;
+    //Element myVideoSinkCR;
+    
     public SenderPipeline(VideoConference vc){
         
         super("audio_sender_pipeline");
@@ -74,6 +77,13 @@ public class SenderPipeline extends Pipeline{
         add(myVideoSink);
         myVideoSink.syncStateWithParent();
         
+        /*
+        videoComponentCR = new VideoComponent();
+        myVideoSinkCR = videoComponentCR.getElement();
+        myVideoSinkCR.setName("vidCR");
+        add(myVideoSinkCR);
+        myVideoSinkCR.syncStateWithParent();
+        */
         
         //
         
@@ -135,6 +145,25 @@ public class SenderPipeline extends Pipeline{
                         teeV.getRequestPad("src%d")
                                         .link(room.getStaticPad("sinkV"))
                                         .equals(PadLinkReturn.OK));
+        
+        //show my video
+        Util.doOrDie(
+                        "teeV-myVideoCR",
+                        teeV.getRequestPad("src%d")
+                                        .link(myVideoSink.getStaticPad("sink"))
+                                        .equals(PadLinkReturn.OK));
+        
+        switch (vc.getMyPositionInCR()){
+            case 0: vc.getGUICR().showVideo1(videoComponent);
+                    break;
+            case 1: vc.getGUICR().showVideo2(videoComponent);
+                    break;
+            case 2: vc.getGUICR().showVideo3(videoComponent);
+                    break;
+            case 3:vc.getGUICR().showVideo4(videoComponent);
+                    break;
+        }
+        //////////
         
 
         play();

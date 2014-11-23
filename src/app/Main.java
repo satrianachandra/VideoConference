@@ -18,7 +18,6 @@ import util.Config;
  */
 public class Main {
    public static void main(String[]args) {
-       System.out.println("hahaha2");
        //start the server
        //just 1 server needed.
        SessionServer ss = new SessionServer(Config.SERVER_PORT);
@@ -36,17 +35,13 @@ public class Main {
              final GUI gui = new GUI(vc);
              gui.setVisible(true);
              vc.setGUI(gui);
-             System.out.println("2");
 
              final GUIConferenceRoom guiCR = new GUIConferenceRoom(vc);
-             System.out.println("3");
 
              vc.setGUICR(guiCR);
-             System.out.println("4");
 
             guiCR.setVisible(false);
              vc.init();
-             System.out.println("5");
 
              }
          });

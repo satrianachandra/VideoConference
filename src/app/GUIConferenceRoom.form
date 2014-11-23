@@ -70,15 +70,15 @@
                           </Group>
                           <EmptySpace pref="37" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="panelVideo1" alignment="1" min="-2" pref="176" max="-2" attributes="0"/>
-                              <Component id="panelVideo3" alignment="1" min="-2" pref="174" max="-2" attributes="0"/>
+                              <Component id="panelVideo3" alignment="1" min="-2" pref="176" max="-2" attributes="0"/>
+                              <Component id="panelVideo1" alignment="1" min="-2" pref="174" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="panelVideo2" min="-2" pref="176" max="-2" attributes="0"/>
-                      <Component id="panelVideo4" min="-2" pref="174" max="-2" attributes="0"/>
+                      <Component id="panelVideo4" min="-2" pref="176" max="-2" attributes="0"/>
+                      <Component id="panelVideo2" min="-2" pref="174" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="78" max="-2" attributes="0"/>
               </Group>
@@ -100,13 +100,13 @@
                       </Group>
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="panelVideo3" min="-2" pref="166" max="-2" attributes="0"/>
-                              <Component id="panelVideo4" alignment="0" min="-2" pref="166" max="-2" attributes="0"/>
+                              <Component id="panelVideo1" min="-2" pref="166" max="-2" attributes="0"/>
+                              <Component id="panelVideo2" alignment="0" min="-2" pref="166" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="panelVideo2" pref="165" max="32767" attributes="0"/>
-                              <Component id="panelVideo1" max="32767" attributes="0"/>
+                              <Component id="panelVideo4" pref="165" max="32767" attributes="0"/>
+                              <Component id="panelVideo3" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -118,7 +118,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Container class="javax.swing.JPanel" name="panelVideo1">
+        <Container class="javax.swing.JPanel" name="panelVideo3">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="b1" green="eb" red="fe" type="rgb"/>
@@ -132,7 +132,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
         </Container>
-        <Container class="javax.swing.JPanel" name="panelVideo3">
+        <Container class="javax.swing.JPanel" name="panelVideo1">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="b1" green="eb" red="fe" type="rgb"/>
@@ -146,7 +146,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
         </Container>
-        <Container class="javax.swing.JPanel" name="panelVideo2">
+        <Container class="javax.swing.JPanel" name="panelVideo4">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="b1" green="eb" red="fe" type="rgb"/>
@@ -160,7 +160,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
         </Container>
-        <Container class="javax.swing.JPanel" name="panelVideo4">
+        <Container class="javax.swing.JPanel" name="panelVideo2">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="b1" green="eb" red="fe" type="rgb"/>
@@ -226,7 +226,7 @@
             <Component class="javax.swing.JList" name="listParticipantList">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="56" green="ba" red="ff" type="rgb"/>
+                  <Color blue="b1" green="eb" red="fe" type="rgb"/>
                 </Property>
                 <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
                   <StringArray count="0"/>
