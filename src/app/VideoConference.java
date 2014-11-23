@@ -233,6 +233,8 @@ public class VideoConference {
 
             //start sending to the originator
             senderPipeline.streamTo(senderUser.getIpAddress());
+            gui.getButtonCall().setEnabled(false);
+            gui.getButtonHangUp().setEnabled(true);
         }
         
     }

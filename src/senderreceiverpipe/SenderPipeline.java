@@ -73,7 +73,7 @@ public class SenderPipeline extends Pipeline{
         
         videoComponent = new VideoComponent();
         myVideoSink = videoComponent.getElement();
-        myVideoSink.setName("vidunicast");
+        myVideoSink.setName("vidUnicastSender");
         add(myVideoSink);
         myVideoSink.syncStateWithParent();
         

@@ -84,6 +84,7 @@ public class ServerChannel implements Runnable {
         }   
         System.out.println("server channel closed");
         vc.endPrivateCall();
+        System.exit(1);
         
     }
 

@@ -163,7 +163,7 @@ class UnicastReceiver extends Bin{
             
              VideoComponent videoComponent = new VideoComponent();
             myVideoSink = videoComponent.getElement();
-            myVideoSink.setName("vidunicast");
+            myVideoSink.setName("vidUnicastReceiver");
             add(myVideoSink);
             link(myVideoSink);
             myVideoSink.syncStateWithParent();
