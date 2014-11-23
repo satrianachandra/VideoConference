@@ -262,6 +262,8 @@ public class VideoConference {
             gui.getButtonCall().setEnabled(true);
             gui.getButtonHangUp().setEnabled(false);
             
+            gui.clearVideoPanels();
+            
             serverChannel.send(new Message(MessageType.BYE, destinationUser));
             
             //stop receiviing
@@ -336,6 +338,7 @@ public class VideoConference {
         
         guiCR.getButtonJoinRoom().setEnabled(true);
         guiCR.getButtonQuitRoom().setEnabled(false);
+        guiCR.clearVideoPanels();
     }
     
 }

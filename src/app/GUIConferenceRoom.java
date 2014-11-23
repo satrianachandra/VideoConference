@@ -255,4 +255,13 @@ public class GUIConferenceRoom extends javax.swing.JFrame {
     public javax.swing.JButton getButtonQuitRoom(){
         return buttonQuitRoom;
     }
+    
+    public void clearVideoPanels(){
+        panelVideo1.removeAll();
+        panelVideo2.removeAll();
+        panelVideo3.removeAll();
+        panelVideo4.removeAll();
+        revalidate();
+        repaint();
+    }
 }

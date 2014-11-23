@@ -336,6 +336,13 @@ public class GUI extends javax.swing.JFrame {
         repaint();
     }
     
+    public void clearVideoPanels(){
+        panelMyVideo.removeAll();
+        panelOtherVideo.removeAll();
+        revalidate();
+        repaint();
+    }
+    
     public void showOtherVideo(javax.swing.JComponent c){
         panelOtherVideo.removeAll();
         panelOtherVideo.add(c);
