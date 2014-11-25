@@ -340,5 +340,9 @@ public class VideoConference {
         guiCR.getButtonQuitRoom().setEnabled(false);
         guiCR.clearVideoPanels();
     }
+
+    void toggleMuteAudio() {
+        receiverPipeline.toggleMuteAudio();
+    }
     
 }

@@ -28,10 +28,7 @@ public class ReceiverPipeline extends Pipeline{
     private Element sinkVideo=null;// = ElementFactory.make("autovideosink", null);
     private VideoConference vc;
     
-    private Element sinkVideoCR1;
-    private Element sinkVideoCR2;
-    private Element sinkVideoCR3;
-    private Element sinkVideoCR4;
+    private final Element volume = ElementFactory.make("volume", "audioVolume");
     
     public ReceiverPipeline(VideoConference vc){
         super("audio_receiver_pipeline");
@@ -54,8 +51,8 @@ public class ReceiverPipeline extends Pipeline{
         vc.getGUI().showOtherVideo(videoComponent);
         */
         
-        addMany(adderAudio, sinkAudio);
-        linkMany(adderAudio, sinkAudio);
+        addMany(adderAudio,volume, sinkAudio);
+        linkMany(adderAudio,volume, sinkAudio);
         
         
         play();
@@ -106,6 +103,15 @@ public class ReceiverPipeline extends Pipeline{
     public void stopRoomReceiving() {
         ((RoomReceiver) getElementByName(RECEIVER_ROOM_PREFIX + 1))
         .getOut();
+    }
+
+    public void toggleMuteAudio() {
+        if ((boolean)volume.get("mute")){
+            volume.set("mute", false);
+        }else{
+            volume.set("mute", true);
+        }
+        
     }
     
     
