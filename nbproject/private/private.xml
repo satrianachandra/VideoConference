@@ -3,9 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/chandra/NetBeansProjects/VideoConference/src/senderreceiverpipe/SenderBin.java</file>
-            <file>file:/home/chandra/NetBeansProjects/VideoConference/src/sessionserver/ClientThread.java</file>
+            <file>file:/home/chandra/NetBeansProjects/VideoConference/src/app/GUI.java</file>
             <file>file:/home/chandra/NetBeansProjects/VideoConference/src/senderreceiverpipe/SenderPipeline.java</file>
+            <file>file:/home/chandra/NetBeansProjects/VideoConference/src/app/VideoConference.java</file>
+            <file>file:/home/chandra/NetBeansProjects/VideoConference/src/senderreceiverpipe/ReceiverPipeline.java</file>
         </group>
     </open-files>
 </project-private>
